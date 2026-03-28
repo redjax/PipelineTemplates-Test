@@ -1,0 +1,12 @@
+---
+name: Test hello-world demo
+
+on:
+  workflow_dispatch:
+
+jobs:
+  call-template:
+    uses: https://github.com/redjax/PipelineTemplates/github-actions/demo/hello.yml@github-actions/demo/hello/v0.0.1
+    with:
+      message: Hello from PipelineTemplates-Test
+
