@@ -6,7 +6,7 @@ on:
 
 jobs:
   call-template:
-    uses: redjax/PipelineTemplates/.github/workflows/demo-hello.yml@github/demo-hello/v0.0.1
+    uses: redjax/PipelineTemplates/.github/workflows/demo-hello.yml@github/demo-hello/v0.0.3
     with:
       message: Hello from PipelineTemplates-Test
 
