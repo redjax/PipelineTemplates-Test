@@ -1,7 +1,6 @@
 ---
 include:
-#   - remote: 'https://raw.githubusercontent.com/redjax/PipelineTemplates/v0.0.0/gitlab/demo/hello.yml'
-  - remote: 'https://raw.githubusercontent.com/redjax/PipelineTemplates/feat/gitlab-demo/gitlab/demo/hello.yml'
+  - remote: 'https://raw.githubusercontent.com/redjax/PipelineTemplates/v0.0.1/gitlab/demo/hello.yml'
 
 variables:
   MESSAGE: "hello from the caller"
