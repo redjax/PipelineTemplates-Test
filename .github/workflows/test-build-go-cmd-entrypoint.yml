@@ -1,0 +1,21 @@
+---
+####################################
+# Test building a Go app where the #
+# app's entrypoint is in a subdir, #
+# i.e. cmd/entrypoint/main.go.     #
+####################################
+
+name: Build example cmd/entrypoint app
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    uses: redjax/PipelineTemplates/.github/workflows/go-build.yml@feat/go-build-pipeline
+    with:
+      module-dir: .
+      build-package: ./cmd/example
+      binary-name: ex
+      platforms: linux/amd64,darwin/arm64
