@@ -7,8 +7,7 @@
 name: Build Go App (monorepo style)
 
 on:
-  push:
-    branches: [main]
+  workflow_dispatch:
 
 jobs:
   build:

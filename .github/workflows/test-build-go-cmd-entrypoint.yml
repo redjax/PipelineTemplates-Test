@@ -8,8 +8,7 @@
 name: Build example cmd/entrypoint app
 
 on:
-  push:
-    branches: [main]
+  workflow_dispatch:
 
 jobs:
   build:
