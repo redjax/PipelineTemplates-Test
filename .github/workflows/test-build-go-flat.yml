@@ -12,7 +12,7 @@ on:
 
 jobs:
   build:
-    uses: redjax/PipelineTemplates/.github/workflows/go-build.yml@github/go-build/v0.0.3
+    uses: redjax/PipelineTemplates/.github/workflows/go-build.yml@github/go-build/v0.0.4
     with:
       module-dir: .
       build-package: .
