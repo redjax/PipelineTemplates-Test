@@ -1,0 +1,21 @@
+---
+##################################
+# Test building a 'flat' Go app, #
+# where the main.go is at the    #
+# root of the repository.        #
+##################################
+
+name: Build Go App (flat)
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    uses: redjax/PipelineTemplates/.github/workflows/go-build.yml@feat/go-build-pipeline
+    with:
+      module-dir: .
+      build-package: .
+      binary-name: ex
+      platforms: linux/amd64,linux/arm64
