@@ -1,0 +1,21 @@
+---
+#################################################
+# Build a Go app that exists in a subdirectory, #
+# i.e. apps/go-appname/go.mod                   #
+#################################################
+
+name: Build Go App (monorepo style)
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    uses: redjax/PipelineTemplates/.github/workflows/go-build.yml@feat/go-build-pipeline
+    with:
+      module-dir: apps/go-example
+      build-package: ./cmd/example
+      binary-name: ex
+      platforms: linux/amd64,linux/arm64
+      ldflags: -X main.version=${{ github.sha }}
