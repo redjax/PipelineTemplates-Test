@@ -1,0 +1,107 @@
+---
+## GoReleaser configuration to build all apps in the test repository
+version: 2
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  ## Build root main.go
+  - id: ex
+    binary: ex
+    main: .
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w
+
+  ## Build cmd/example/main.go
+  - id: cmd-example
+    binary: cmd-example
+    main: ./cmd/example
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w
+
+  ## Build apps/go-example/main.go (app root)
+  - id: app-example
+    binary: app-example
+    main: .
+    dir: ./apps/go-example
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w
+
+  ## Build apps/go-example/cmd/example/main.go (app cmd)
+  - id: app-cmd-example
+    binary: app-cmd-example
+    main: ./cmd/example
+    dir: ./apps/go-example
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w
+
+archives:
+  - id: default
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- .Version }}_
+      {{- .Os }}_
+      {{- .Arch }}
+    formats:
+      - tar.gz
+      - zip
+    files:
+      - LICENSE*
+      - README*
+
+checksum:
+  name_template: 'checksums.txt'
+  algorithm: sha256
+
+snapshot:
+  version_template: "{{ incpatch .Version }}-snapshot"
+
+changelog:
+  use: github
+  sort: asc
