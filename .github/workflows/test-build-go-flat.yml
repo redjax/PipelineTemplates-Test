@@ -12,9 +12,12 @@ on:
 
 jobs:
   build:
-    uses: redjax/PipelineTemplates/.github/workflows/go-build.yml@github/go-build/v0.0.5
+    uses: redjax/PipelineTemplates/.github/workflows/go-build.yml@github/go-build/v0.0.6
     with:
       module-dir: .
       build-package: .
       binary-name: ex
       platforms: linux/amd64,linux/arm64
+      upload-artifacts: true
+      artifact-name: example-dist
+      ldflags: -X main.version=${{ github.sha }}
