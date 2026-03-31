@@ -11,7 +11,7 @@ on:
 
 jobs:
   build:
-    uses: redjax/PipelineTemplates/.github/workflows/go-build.yml@github/go-build/v0.0.6
+    uses: redjax/PipelineTemplates/.github/workflows/go-build.yml@github/go-build/v0.0.7
     with:
       module-dir: apps/go-example
       build-package: ./cmd/example

@@ -15,7 +15,7 @@ jobs:
       contents: write
       packages: write
       id-token: write
-    uses: redjax/PipelineTemplates/.github/workflows/goreleaser-build.yml@github/goreleaser-build/v0.0.4
+    uses: redjax/PipelineTemplates/.github/workflows/goreleaser-build.yml@github/goreleaser-build/v0.0.5
     with:
       goreleaser-config: .goreleaser.yml
       snapshot: true
