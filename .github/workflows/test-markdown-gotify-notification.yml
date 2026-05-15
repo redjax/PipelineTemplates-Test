@@ -1,0 +1,30 @@
+---
+name: Deploy
+
+on:
+  workflow_dispatch:
+
+jobs:
+  notify:
+    uses: redjax/PipelineTemplates/.github/workflows/gotify-notification.yml@github/notify-gotify@v0.0.0
+
+    with:
+      gotify-url: ${{ secrets.GOTIFY_URL }}
+
+      title: Pipeline Test
+
+      message: |
+        ## Pipeline Test - Markdown
+
+        This is a test notification from:
+
+        Repository: `${{ github.repository }}`
+        Branch: `${{ github.ref_name }}`
+        Commit: `${{ github.sha }}`
+
+      content-type: text/markdown
+
+      priority: 8
+
+    secrets:
+      gotify-token: ${{ secrets.GOTIFY_TOKEN }}
