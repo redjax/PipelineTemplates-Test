@@ -1,0 +1,20 @@
+---
+name: Test Gotify notification
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  notify:
+    uses: redjax/PipelineTemplates/.github/workflows/gotify-notification.yml@github/notify-gotify@v0.0.0
+
+    with:
+      gotify-url: ${{ secrets.GOTIFY_URL }}
+      title: Pipeline Test
+      message: Notification from the PipelineTemplates test repository
+      priority: 3
+
+    secrets:
+      gotify-token: ${{ secrets.GOTIFY_TOKEN }}
