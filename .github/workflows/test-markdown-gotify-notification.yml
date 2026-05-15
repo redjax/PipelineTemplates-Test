@@ -1,5 +1,5 @@
 ---
-name: Deploy
+name: Test Gotify Markdown Notification
 
 on:
   workflow_dispatch:
