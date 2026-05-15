@@ -1,0 +1,30 @@
+---
+name: Test Gotify Raw Payload Notification
+
+on:
+  workflow_dispatch:
+
+jobs:
+  notify:
+    uses: redjax/PipelineTemplates/.github/workflows/gotify-notification.yml@github/notify-gotify@v0.0.0
+
+    with:
+      gotify-url: ${{ secrets.GOTIFY_URL }}
+
+      raw-json-payload: |
+        {
+          "title": "Pipeline Test",
+          "message": "Fully custom request",
+          "priority": 10,
+          "extras": {
+            "client::display": {
+              "contentType": "text/markdown"
+            },
+            "custom::advanced": {
+              "foo": "bar"
+            }
+          }
+        }
+
+    secrets:
+      gotify-token: ${{ secrets.GOTIFY_TOKEN }}
