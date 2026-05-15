@@ -1,0 +1,23 @@
+---
+name: Test Gotify Clickable Notification
+
+on:
+  workflow_dispatch:
+
+jobs:
+  notify:
+    uses: redjax/PipelineTemplates/.github/workflows/gotify-notification.yml@github/notify-gotify@v0.0.0
+
+    with:
+      gotify-url: ${{ secrets.GOTIFY_URL }}
+
+      title: Pipeline Test
+
+      message: Click to open workflow run
+
+      click-url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+      priority: 5
+
+    secrets:
+      gotify-token: ${{ secrets.GOTIFY_TOKEN }}
