@@ -11,7 +11,7 @@ jobs:
 
     with:
       title: Pipeline Test
-
+      gotify-url: ${{ vars.GOTIFY_URL }}
       message: Test notification with merged extras
 
       extras-json: |
@@ -23,5 +23,4 @@ jobs:
         }
 
     secrets:
-      gotify-url: ${{ secrets.GOTIFY_URL }}
       gotify-token: ${{ secrets.GOTIFY_TOKEN }}

@@ -10,6 +10,7 @@ jobs:
     uses: redjax/PipelineTemplates/.github/workflows/notify-gotify.yml@feat/gotify-notification
 
     with:
+      gotify-url: ${{ vars.GOTIFY_URL }}
       title: Pipeline Test
 
       message: Click to open workflow run
@@ -19,5 +20,4 @@ jobs:
       priority: 5
 
     secrets:
-      gotify-url: ${{ secrets.GOTIFY_URL }}
       gotify-token: ${{ secrets.GOTIFY_TOKEN }}
