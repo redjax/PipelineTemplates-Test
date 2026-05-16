@@ -2,9 +2,7 @@
 name: Test Gotify notification
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
   notify:
