@@ -6,8 +6,8 @@ on:
 
 jobs:
   notify:
-    # uses: redjax/PipelineTemplates/.github/workflows/gotify-notify.yml@github/notify-gotify@v0.0.0
-    uses: redjax/PipelineTemplates/.github/workflows/gotify-notify.yml@feat/gotify-notification
+    # uses: redjax/PipelineTemplates/.github/workflows/notify-gotify.yml@github/notify-gotify@v0.0.0
+    uses: redjax/PipelineTemplates/.github/workflows/notify-gotify.yml@feat/gotify-notification
 
     with:
       ## Forces multipart/form-data mode
