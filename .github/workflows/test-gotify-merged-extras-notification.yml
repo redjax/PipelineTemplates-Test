@@ -1,0 +1,27 @@
+---
+name: Test Gotify Merged Extras Notification
+
+on:
+  workflow_dispatch:
+
+jobs:
+  notify:
+    # uses: redjax/PipelineTemplates/.github/workflows/gotify-notification.yml@github/notify-gotify@v0.0.0
+    uses: redjax/PipelineTemplates/.github/workflows/gotify-notification.yml@feat/gotify-notification
+
+    with:
+      title: Pipeline Test
+
+      message: Test notification with merged extras
+
+      extras-json: |
+        {
+          "custom::ci": {
+            "pipeline": "deploy",
+            "environment": "production"
+          }
+        }
+
+    secrets:
+      gotify-url: ${{ secrets.GOTIFY_URL }}
+      gotify-token: ${{ secrets.GOTIFY_TOKEN }}
