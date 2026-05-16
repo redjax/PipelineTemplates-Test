@@ -12,7 +12,6 @@ jobs:
     with:
       gotify-url: ${{ vars.GOTIFY_URL }}
       title: Pipeline Test
-
       message: |
         ## Pipeline Test - Markdown
 
@@ -23,7 +22,6 @@ jobs:
         Commit: `${{ github.sha }}`
 
       content-type: text/markdown
-
       priority: 8
 
     secrets:

@@ -13,7 +13,6 @@ jobs:
       title: Pipeline Test
       gotify-url: ${{ vars.GOTIFY_URL }}
       message: Test notification with merged extras
-
       extras-json: |
         {
           "custom::ci": {

@@ -12,11 +12,8 @@ jobs:
     with:
       gotify-url: ${{ vars.GOTIFY_URL }}
       title: Pipeline Test
-
       message: Click to open workflow run
-
       click-url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-
       priority: 5
 
     secrets:

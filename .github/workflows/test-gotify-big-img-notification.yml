@@ -13,9 +13,7 @@ jobs:
       title: Pipeline Test
       gotify-url: ${{ vars.GOTIFY_URL }}
       message: Test notification with embedded image
-
       big-image-url: https://res.cloudinary.com/utiblog/image/upload/f_auto,q_auto/pipeline-welder_hero.webp
-
       priority: 5
 
     secrets:
