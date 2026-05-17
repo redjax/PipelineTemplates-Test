@@ -56,7 +56,7 @@ env:
 jobs:
   simple:
     if: inputs.simple
-    uses: redjax/PipelineTemplates/.github/workflows/notify-gotify.yml@github/notify-gotify/v0.0.2
+    uses: redjax/PipelineTemplates/.github/workflows/notify-gotify.yml@github/notify-gotify/v0.0.3
 
     with:
       gotify-url: ${{ vars.GOTIFY_URL }}
@@ -69,7 +69,7 @@ jobs:
 
   clickable:
     if: inputs.clickable
-    uses: redjax/PipelineTemplates/.github/workflows/notify-gotify.yml@github/notify-gotify/v0.0.2
+    uses: redjax/PipelineTemplates/.github/workflows/notify-gotify.yml@github/notify-gotify/v0.0.3
 
     with:
       gotify-url: ${{ vars.GOTIFY_URL }}
@@ -83,7 +83,7 @@ jobs:
 
   markdown:
     if: inputs.markdown
-    uses: redjax/PipelineTemplates/.github/workflows/notify-gotify.yml@github/notify-gotify/v0.0.2
+    uses: redjax/PipelineTemplates/.github/workflows/notify-gotify.yml@github/notify-gotify/v0.0.3
 
     with:
       gotify-url: ${{ vars.GOTIFY_URL }}
@@ -105,7 +105,7 @@ jobs:
 
   big-image:
     if: inputs.big-image
-    uses: redjax/PipelineTemplates/.github/workflows/notify-gotify.yml@github/notify-gotify/v0.0.2
+    uses: redjax/PipelineTemplates/.github/workflows/notify-gotify.yml@github/notify-gotify/v0.0.3
 
     with:
       gotify-url: ${{ vars.GOTIFY_URL }}
@@ -119,7 +119,7 @@ jobs:
 
   multipart:
     if: inputs.multipart
-    uses: redjax/PipelineTemplates/.github/workflows/notify-gotify.yml@github/notify-gotify/v0.0.2
+    uses: redjax/PipelineTemplates/.github/workflows/notify-gotify.yml@github/notify-gotify/v0.0.3
 
     with:
       gotify-url: ${{ vars.GOTIFY_URL }}
@@ -136,7 +136,7 @@ jobs:
 
   merged-extras:
     if: inputs.merged-extras
-    uses: redjax/PipelineTemplates/.github/workflows/notify-gotify.yml@github/notify-gotify/v0.0.2
+    uses: redjax/PipelineTemplates/.github/workflows/notify-gotify.yml@github/notify-gotify/v0.0.3
 
     with:
       gotify-url: ${{ vars.GOTIFY_URL }}
@@ -155,7 +155,7 @@ jobs:
 
   raw-json:
     if: inputs.raw-json
-    uses: redjax/PipelineTemplates/.github/workflows/notify-gotify.yml@github/notify-gotify/v0.0.2
+    uses: redjax/PipelineTemplates/.github/workflows/notify-gotify.yml@github/notify-gotify/v0.0.3
 
     with:
       gotify-url: ${{ vars.GOTIFY_URL }}
