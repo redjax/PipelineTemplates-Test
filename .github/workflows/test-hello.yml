@@ -18,3 +18,11 @@ jobs:
         uses: redjax/PipelineTemplates/.github/actions/hello@refactor/demo-hello-component
         with:
           message: ${{ inputs.message }}
+
+  ## If you want to call the reusable workflow instead of the action,
+  #  replace the job above with this job-level call:
+  #
+  # call-template:
+  #   uses: redjax/PipelineTemplates/.github/workflows/demo-hello.yml@refactor/demo-hello-component
+  #   with:
+  #     message: ${ inputs.message }}  # Add another { after the $ in the 'real' version
