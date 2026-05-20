@@ -3,9 +3,18 @@ name: Test hello-world demo
 
 on:
   workflow_dispatch:
+    inputs:
+      message:
+        description: The message to print
+        required: false
+        type: string
+        default: Hello from PipelineTemplates-test
 
 jobs:
   call-template:
-    uses: redjax/PipelineTemplates/.github/workflows/demo-hello.yml@refactor/demo-hello-component
-    with:
-      message: Hello from PipelineTemplates-Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print message
+        uses: redjax/PipelineTemplates/.github/actions/hello@refactor/demo-hello-component
+        with:
+          message: ${{ inputs.message }}
