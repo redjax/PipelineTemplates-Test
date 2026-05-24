@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Build Go binaries
-        uses: redjax/PipelineTemplates/shared/actions/go-build@feat/go-build-action
+        uses: redjax/PipelineTemplates/.github/actions/go-build@feat/go-build-action
         with:
           module-dir: .
           build-package: .
