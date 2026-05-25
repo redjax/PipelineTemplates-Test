@@ -56,120 +56,182 @@ env:
 jobs:
   simple:
     if: inputs.simple
-    uses: redjax/PipelineTemplates/.github/workflows/notify-gotify.yml@github/notify-gotify/v0.0.3
-
-    with:
-      gotify-url: ${{ vars.GOTIFY_URL }}
-      title: Pipeline Test
-      message: Simple Gotify notification test
-      priority: 3
-
-    secrets:
-      gotify-token: ${{ secrets.GOTIFY_TOKEN }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Simple notification
+        uses: redjax/PipelineTemplates/.github/actions/notify-gotify@feat/notify-gotify-action
+        with:
+          gotify-url: ${{ env.GOTIFY_URL }}
+          gotify-token: ${{ secrets.GOTIFY_TOKEN }}
+          title: "Pipeline Test"
+          message: "Simple Gotify notification test"
+          priority: "3"
+          use-json: "true"
+          content-type: "text/plain"
+          click-url: ""
+          big-image-url: ""
+          intent-url: ""
+          extras-json: "{}"
+          raw-json-payload: ""
+          user-agent: "redjax/PipelineTemplates"
+          debug: "false"
 
   clickable:
     if: inputs.clickable
-    uses: redjax/PipelineTemplates/.github/workflows/notify-gotify.yml@github/notify-gotify/v0.0.3
-
-    with:
-      gotify-url: ${{ vars.GOTIFY_URL }}
-      title: Pipeline Test
-      message: Click to open workflow run
-      click-url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-      priority: 5
-
-    secrets:
-      gotify-token: ${{ secrets.GOTIFY_TOKEN }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clickable notification
+        uses: redjax/PipelineTemplates/.github/actions/notify-gotify@feat/notify-gotify-action
+        with:
+          gotify-url: ${{ env.GOTIFY_URL }}
+          gotify-token: ${{ secrets.GOTIFY_TOKEN }}
+          title: "Pipeline Test"
+          message: "Click to open workflow run"
+          priority: "5"
+          use-json: "true"
+          content-type: "text/plain"
+          click-url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          big-image-url: ""
+          intent-url: ""
+          extras-json: "{}"
+          raw-json-payload: ""
+          user-agent: "redjax/PipelineTemplates"
+          debug: "false"
 
   markdown:
     if: inputs.markdown
-    uses: redjax/PipelineTemplates/.github/workflows/notify-gotify.yml@github/notify-gotify/v0.0.3
+    runs-on: ubuntu-latest
+    steps:
+      - name: Markdown notification
+        uses: redjax/PipelineTemplates/.github/actions/notify-gotify@feat/notify-gotify-action
+        with:
+          gotify-url: ${{ env.GOTIFY_URL }}
+          gotify-token: ${{ secrets.GOTIFY_TOKEN }}
+          title: "Pipeline Test"
+          content-type: "text/markdown"
+          message: |
+            ## Pipeline Test - Markdown
 
-    with:
-      gotify-url: ${{ vars.GOTIFY_URL }}
-      title: Pipeline Test
-      content-type: text/markdown
-      message: |
-        ## Pipeline Test - Markdown
+            This is a test notification from:
 
-        This is a test notification from:
-
-        - Repository: `${{ github.repository }}`
-        - Branch: `${{ github.ref_name }}`
-        - Commit: `${{ github.sha }}`
-
-      priority: 8
-
-    secrets:
-      gotify-token: ${{ secrets.GOTIFY_TOKEN }}
+            - Repository: `${{ github.repository }}`
+            - Branch: `${{ github.ref_name }}`
+            - Commit: `${{ github.sha }}`
+          priority: "8"
+          use-json: "true"
+          click-url: ""
+          big-image-url: ""
+          intent-url: ""
+          extras-json: "{}"
+          raw-json-payload: ""
+          user-agent: "redjax/PipelineTemplates"
+          debug: "false"
 
   big-image:
     if: inputs.big-image
-    uses: redjax/PipelineTemplates/.github/workflows/notify-gotify.yml@github/notify-gotify/v0.0.3
-
-    with:
-      gotify-url: ${{ vars.GOTIFY_URL }}
-      title: Pipeline Test
-      message: Test notification with embedded image
-      big-image-url: https://res.cloudinary.com/utiblog/image/upload/f_auto,q_auto/pipeline-welder_hero.webp
-      priority: 5
-
-    secrets:
-      gotify-token: ${{ secrets.GOTIFY_TOKEN }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Big image notification
+        uses: redjax/PipelineTemplates/.github/actions/notify-gotify@feat/notify-gotify-action
+        with:
+          gotify-url: ${{ env.GOTIFY_URL }}
+          gotify-token: ${{ secrets.GOTIFY_TOKEN }}
+          title: "Pipeline Test"
+          message: "Test notification with embedded image"
+          priority: "5"
+          use-json: "true"
+          content-type: "text/plain"
+          click-url: ""
+          big-image-url: "https://res.cloudinary.com/utiblog/image/upload/f_auto,q_auto/pipeline-welder_hero.webp"
+          intent-url: ""
+          extras-json: "{}"
+          raw-json-payload: ""
+          user-agent: "redjax/PipelineTemplates"
+          debug: "false"
 
   multipart:
     if: inputs.multipart
-    uses: redjax/PipelineTemplates/.github/workflows/notify-gotify.yml@github/notify-gotify/v0.0.3
+    runs-on: ubuntu-latest
+    steps:
+      - name: Multipart notification
+        uses: redjax/PipelineTemplates/.github/actions/notify-gotify@feat/notify-gotify-action
+        with:
+          gotify-url: ${{ env.GOTIFY_URL }}
+          gotify-token: ${{ secrets.GOTIFY_TOKEN }}
+          use-json: "false"
+          title: "Pipeline Test"
+          message: |
+            This notification was sent using multipart/form-data mode.
 
-    with:
-      gotify-url: ${{ vars.GOTIFY_URL }}
-      use-json: false
-      title: Pipeline Test
-      message: |
-        This notification was sent using multipart/form-data mode.
-
-        Only title, message, and priority are supported.
-      priority: 2
-
-    secrets:
-      gotify-token: ${{ secrets.GOTIFY_TOKEN }}
+            Only title, message, and priority are supported.
+          priority: "2"
+          content-type: "text/plain"
+          click-url: ""
+          big-image-url: ""
+          intent-url: ""
+          extras-json: "{}"
+          raw-json-payload: ""
+          user-agent: "redjax/PipelineTemplates"
+          debug: "false"
 
   merged-extras:
     if: inputs.merged-extras
-    uses: redjax/PipelineTemplates/.github/workflows/notify-gotify.yml@github/notify-gotify/v0.0.3
-
-    with:
-      gotify-url: ${{ vars.GOTIFY_URL }}
-      title: Pipeline Test
-      message: Test notification with merged extras
-      extras-json: |
-        {
-          "custom::ci": {
-            "pipeline": "deploy",
-            "environment": "production"
-          }
-        }
-
-    secrets:
-      gotify-token: ${{ secrets.GOTIFY_TOKEN }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Merged extras notification
+        uses: redjax/PipelineTemplates/.github/actions/notify-gotify@feat/notify-gotify-action
+        with:
+          gotify-url: ${{ env.GOTIFY_URL }}
+          gotify-token: ${{ secrets.GOTIFY_TOKEN }}
+          title: "Pipeline Test"
+          message: "Test notification with merged extras"
+          priority: "5"
+          use-json: "true"
+          content-type: "text/plain"
+          click-url: ""
+          big-image-url: ""
+          intent-url: ""
+          extras-json: |
+            {
+              "custom::ci": {
+                "pipeline": "deploy",
+                "environment": "production"
+              }
+            }
+          raw-json-payload: ""
+          user-agent: "redjax/PipelineTemplates"
+          debug: "false"
 
   raw-json:
     if: inputs.raw-json
-    uses: redjax/PipelineTemplates/.github/workflows/notify-gotify.yml@github/notify-gotify/v0.0.3
-
-    with:
-      gotify-url: ${{ vars.GOTIFY_URL }}
-      raw-json-payload: |
-        {
-          "title": "Pipeline Test",
-          "message": "Raw JSON payload test",
-          "priority": 10,
-          "extras": {
-            "client::display": {
-              "contentType": "text/markdown"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Raw JSON notification
+        uses: redjax/PipelineTemplates/.github/actions/notify-gotify@feat/notify-gotify-action
+        with:
+          gotify-url: ${{ env.GOTIFY_URL }}
+          gotify-token: ${{ secrets.GOTIFY_TOKEN }}
+          # raw-json-payload completely overrides the generated payload
+          raw-json-payload: |
+            {
+              "title": "Pipeline Test",
+              "message": "Raw JSON payload test",
+              "priority": 10,
+              "extras": {
+                "client::display": {
+                  "contentType": "text/markdown"
+                }
+              }
             }
-          }
-        }
-
-    secrets:
-      gotify-token: ${{ secrets.GOTIFY_TOKEN }}
+          # other fields mostly ignored when raw-json-payload is set
+          title: ""
+          message: ""
+          priority: "0"
+          use-json: "true"
+          content-type: "text/plain"
+          click-url: ""
+          big-image-url: ""
+          intent-url: ""
+          extras-json: "{}"
+          user-agent: "redjax/PipelineTemplates"
+          debug: "false"
