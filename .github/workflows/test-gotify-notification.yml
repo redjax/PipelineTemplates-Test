@@ -59,7 +59,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Simple notification
-        uses: redjax/PipelineTemplates/.github/actions/notify-gotify@feat/notify-gotify-action
+        uses: redjax/PipelineTemplates/.github/actions/notify-gotify@gh/notify-gotify/v0.0.1
         with:
           gotify-url: ${{ env.GOTIFY_URL }}
           gotify-token: ${{ secrets.GOTIFY_TOKEN }}
@@ -81,7 +81,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Clickable notification
-        uses: redjax/PipelineTemplates/.github/actions/notify-gotify@feat/notify-gotify-action
+        uses: redjax/PipelineTemplates/.github/actions/notify-gotify@gh/notify-gotify/v0.0.1
         with:
           gotify-url: ${{ env.GOTIFY_URL }}
           gotify-token: ${{ secrets.GOTIFY_TOKEN }}
@@ -103,7 +103,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Markdown notification
-        uses: redjax/PipelineTemplates/.github/actions/notify-gotify@feat/notify-gotify-action
+        uses: redjax/PipelineTemplates/.github/actions/notify-gotify@gh/notify-gotify/v0.0.1
         with:
           gotify-url: ${{ env.GOTIFY_URL }}
           gotify-token: ${{ secrets.GOTIFY_TOKEN }}
@@ -132,7 +132,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Big image notification
-        uses: redjax/PipelineTemplates/.github/actions/notify-gotify@feat/notify-gotify-action
+        uses: redjax/PipelineTemplates/.github/actions/notify-gotify@gh/notify-gotify/v0.0.1
         with:
           gotify-url: ${{ env.GOTIFY_URL }}
           gotify-token: ${{ secrets.GOTIFY_TOKEN }}
@@ -154,7 +154,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Multipart notification
-        uses: redjax/PipelineTemplates/.github/actions/notify-gotify@feat/notify-gotify-action
+        uses: redjax/PipelineTemplates/.github/actions/notify-gotify@gh/notify-gotify/v0.0.1
         with:
           gotify-url: ${{ env.GOTIFY_URL }}
           gotify-token: ${{ secrets.GOTIFY_TOKEN }}
@@ -179,7 +179,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Merged extras notification
-        uses: redjax/PipelineTemplates/.github/actions/notify-gotify@feat/notify-gotify-action
+        uses: redjax/PipelineTemplates/.github/actions/notify-gotify@gh/notify-gotify/v0.0.1
         with:
           gotify-url: ${{ env.GOTIFY_URL }}
           gotify-token: ${{ secrets.GOTIFY_TOKEN }}
@@ -207,7 +207,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Raw JSON notification
-        uses: redjax/PipelineTemplates/.github/actions/notify-gotify@feat/notify-gotify-action
+        uses: redjax/PipelineTemplates/.github/actions/notify-gotify@gh/notify-gotify/v0.0.1
         with:
           gotify-url: ${{ env.GOTIFY_URL }}
           gotify-token: ${{ secrets.GOTIFY_TOKEN }}
