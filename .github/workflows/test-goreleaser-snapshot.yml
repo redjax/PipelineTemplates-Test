@@ -20,7 +20,7 @@ jobs:
 
     steps:
       - name: Run GoReleaser snapshot build
-        uses: redjax/PipelineTemplates/.github/actions/goreleaser-build@feat/goreleaser-build-action
+        uses: redjax/PipelineTemplates/.github/actions/go-build@gh/goreleaser-build/v0.0.1
         with:
           goreleaser-config: .goreleaser.yml
           snapshot: "true"
