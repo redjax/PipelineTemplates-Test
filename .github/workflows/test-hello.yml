@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Print message
-        uses: redjax/PipelineTemplates/.github/actions/hello@refactor/demo-hello-component
+        uses: redjax/PipelineTemplates/.github/actions/hello@gh/hello/v0.0.1
         with:
           message: ${{ inputs.message }}
 
@@ -23,6 +23,6 @@ jobs:
   #  replace the job above with this job-level call:
   #
   # call-template:
-  #   uses: redjax/PipelineTemplates/.github/workflows/demo-hello.yml@refactor/demo-hello-component
+  #   uses: redjax/PipelineTemplates/.github/workflows/demo-hello.yml@gh/hello/v0.0.1
   #   with:
   #     message: ${ inputs.message }}  # Add another { after the $ in the 'real' version
