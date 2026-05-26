@@ -39,8 +39,8 @@ jobs:
           dockerfile: containers/app2/Dockerfile
           image_name: ${{ env.IMAGE_NAME }}
           tags: |
-            ${{ inputs.tag }}
-            sha-${{ github.sha }}
+            ghcr.io/${{ env.IMAGE_NAME }}:${{ inputs.tag }}
+            ghcr.io/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}
           push: ${{ inputs.push && 'true' || 'false' }}
           platforms: ${{ inputs.platforms }}
           build_args: |
