@@ -10,7 +10,7 @@
 #                                                #
 ##################################################
 
-name: Test ntfy Notifications
+name: Test ntfy notifications
 
 on:
   workflow_dispatch:
@@ -53,7 +53,7 @@ on:
 
 env:
   NTFY_SERVER: ${{ vars.NTFY_SERVER }}
-  NTFY_TOPIC: ci-builds
+  NTFY_TOPIC: pipelines
 
 jobs:
   simple:
@@ -61,7 +61,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Simple ntfy notification
-        uses: redjax/PipelineTemplates/.github/actions/notify-ntfy@v0.0.1
+        uses: redjax/PipelineTemplates/.github/actions/notify-ntfy@gh/notify-ntfy/v0.0.1
         with:
           ntfy-server: ${{ env.NTFY_SERVER }}
           topic: ${{ env.NTFY_TOPIC }}
@@ -82,7 +82,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Clickable ntfy notification
-        uses: redjax/PipelineTemplates/.github/actions/notify-ntfy@v0.0.1
+        uses: redjax/PipelineTemplates/.github/actions/notify-ntfy@gh/notify-ntfy/v0.0.1
         with:
           ntfy-server: ${{ env.NTFY_SERVER }}
           topic: ${{ env.NTFY_TOPIC }}
@@ -103,12 +103,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Markdown ntfy notification
-        uses: redjax/PipelineTemplates/.github/actions/notify-ntfy@v0.0.1
+        uses: redjax/PipelineTemplates/.github/actions/notify-ntfy@gh/notify-ntfy/v0.0.1
         with:
           ntfy-server: ${{ env.NTFY_SERVER }}
           topic: ${{ env.NTFY_TOPIC }}
           title: "ntfy Test - Markdown"
-          # Multi-line markdown body
+          ## Multi-line markdown body
           raw-body: |
             ## ntfy Pipeline Test - Markdown
 
@@ -127,6 +127,7 @@ jobs:
           attach: ""
           user-agent: "redjax/PipelineTemplates"
           auth-token: ${{ secrets.NTFY_TOKEN }}
+          markdown: "true"
           debug: "false"
 
   tags:
@@ -134,7 +135,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Tagged ntfy notification
-        uses: redjax/PipelineTemplates/.github/actions/notify-ntfy@v0.0.1
+        uses: redjax/PipelineTemplates/.github/actions/notify-ntfy@gh/notify-ntfy/v0.0.1
         with:
           ntfy-server: ${{ env.NTFY_SERVER }}
           topic: ${{ env.NTFY_TOPIC }}
@@ -155,7 +156,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Generate simple report
         run: |
@@ -192,7 +193,7 @@ jobs:
           echo "artifact_url=$url" >> "$GITHUB_OUTPUT"
 
       - name: ntfy notification with attachment
-        uses: redjax/PipelineTemplates/.github/actions/notify-ntfy@v0.0.1
+        uses: redjax/PipelineTemplates/.github/actions/notify-ntfy@gh/notify-ntfy/v0.0.1
         with:
           ntfy-server: ${{ env.NTFY_SERVER }}
           topic: ${{ env.NTFY_TOPIC }}
@@ -212,6 +213,9 @@ jobs:
     if: inputs.multiline
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v6
+
       - name: Generate file list for message
         id: generate_list
         shell: bash
@@ -233,7 +237,7 @@ jobs:
           cat reports/message.txt
 
       - name: Send multi-line ntfy notification from file
-        uses: redjax/PipelineTemplates/.github/actions/notify-ntfy@v0.0.1
+        uses: redjax/PipelineTemplates/.github/actions/notify-ntfy@gh/notify-ntfy/v0.0.1
         with:
           ntfy-server: ${{ env.NTFY_SERVER }}
           topic: ${{ env.NTFY_TOPIC }}
