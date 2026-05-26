@@ -53,7 +53,7 @@ on:
 
 env:
   NTFY_SERVER: ${{ vars.NTFY_SERVER }}
-  NTFY_TOPIC: ci-builds
+  NTFY_TOPIC: pipelines
 
 jobs:
   simple:
