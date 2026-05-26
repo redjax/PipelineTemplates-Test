@@ -108,7 +108,7 @@ jobs:
           ntfy-server: ${{ env.NTFY_SERVER }}
           topic: ${{ env.NTFY_TOPIC }}
           title: "ntfy Test - Markdown"
-          # Multi-line markdown body
+          ## Multi-line markdown body
           raw-body: |
             ## ntfy Pipeline Test - Markdown
 
@@ -127,6 +127,7 @@ jobs:
           attach: ""
           user-agent: "redjax/PipelineTemplates"
           auth-token: ${{ secrets.NTFY_TOKEN }}
+          markdown: "true"
           debug: "false"
 
   tags:
