@@ -21,17 +21,17 @@ jobs:
         with:
           context: containers/app2
           dockerfile: containers/app2/Dockerfile
-          image_name: ${{ env.IMAGE_NAME }}
+          image_name: redjax/pipelinetemplates-test-app2
           tags: |
-            latest
-            sha-${{ github.sha }}
-          push: "true"
-          platforms: linux/amd64,linux/arm64
+            ghcr.io/redjax/pipelinetemplates-test-app2:${{ inputs.tag }}
+            ghcr.io/redjax/pipelinetemplates-test-app2:sha-${{ github.sha }}
+          push: ${{ inputs.push && 'true' || 'false' }}
+          platforms: ${{ inputs.platforms }}
           build_args: |
             GIT_SHA=${{ github.sha }}
             BUILD_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
           cache_from: ""
           cache_to: ""
-          registry: ${{ env.REGISTRY }}
+          registry: ghcr.io
           registry_username: ${{ github.actor }}
           registry_password: ${{ secrets.GITHUB_TOKEN }}
