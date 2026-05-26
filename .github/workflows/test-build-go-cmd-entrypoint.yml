@@ -5,7 +5,7 @@
 # i.e. cmd/entrypoint/main.go.     #
 ####################################
 
-name: Build example cmd/entrypoint app
+name: Test build example cmd/entrypoint app
 
 on:
   workflow_dispatch:

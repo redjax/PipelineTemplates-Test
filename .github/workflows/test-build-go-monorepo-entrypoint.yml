@@ -4,7 +4,7 @@
 # i.e. apps/go-example/go.mod                   #
 #################################################
 
-name: Build Go App (monorepo style)
+name: Test build Go app (monorepo style)
 
 on:
   workflow_dispatch:
