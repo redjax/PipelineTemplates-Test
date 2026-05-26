@@ -28,7 +28,7 @@ jobs:
 
     steps:
       - name: Build app1
-        uses: redjax/PipelineTemplates/.github/actions/docker-build-publish@feat/gh-docker-build-publish
+        uses: redjax/PipelineTemplates/.github/actions/docker-build-publish@gh/docker-build-publish/v0.0.1
         with:
           context: containers/app1
           dockerfile: containers/app1/Dockerfile
