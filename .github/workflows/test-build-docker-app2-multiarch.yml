@@ -20,7 +20,7 @@ jobs:
         uses: redjax/PipelineTemplates/.github/actions/docker-build-publish@feat/gh-docker-build-publish
         with:
           context: containers/app2
-          dockerfile: Dockerfile
+          dockerfile: containers/app2/Dockerfile
           image_name: ${{ env.IMAGE_NAME }}
           tags: |
             latest

@@ -2,12 +2,7 @@
 name: Docker Build (no push)
 
 on:
-  pull_request:
-    branches:
-      - main
-    paths:
-      - "containers/**"
-      - ".github/workflows/docker-build-nopush.yml"
+  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
@@ -25,7 +20,7 @@ jobs:
         uses: redjax/PipelineTemplates/.github/actions/docker-build-publish@feat/gh-docker-build-publish
         with:
           context: containers/app1
-          dockerfile: Dockerfile
+          dockerfile: containers/app1/Dockerfile
           image_name: ${{ env.IMAGE_NAME }}
           tags: |
             pr-${{ github.event.pull_request.number }}

@@ -3,6 +3,17 @@ name: Docker Build app1 (GHCR)
 
 on:
   workflow_dispatch:
+    inputs:
+      tag:
+        description: "Image tag to use"
+        required: false
+        type: string
+        default: "latest"
+      push:
+        description: "Push image to registry"
+        required: false
+        type: boolean
+        default: true
 
 env:
   REGISTRY: ghcr.io
@@ -16,15 +27,15 @@ jobs:
       packages: write
 
     steps:
-      - name: Build and publish app1
+      - name: Build app1
         uses: redjax/PipelineTemplates/.github/actions/docker-build-publish@feat/gh-docker-build-publish
         with:
           context: containers/app1
-          dockerfile: Dockerfile
+          dockerfile: containers/app1/Dockerfile
           image_name: ${{ env.IMAGE_NAME }}
           tags: |
-            latest
-          push: "true"
+            ${{ inputs.tag }}
+          push: ${{ inputs.push && 'true' || 'false' }}
           platforms: linux/amd64
           build_args: |
             GIT_SHA=${{ github.sha }}
