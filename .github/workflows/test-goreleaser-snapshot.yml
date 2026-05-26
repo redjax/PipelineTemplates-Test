@@ -11,15 +11,28 @@ on:
 
 jobs:
   goreleaser-snapshot:
+    runs-on: ubuntu-latest
+
     permissions:
       contents: write
       packages: write
       id-token: write
-    uses: redjax/PipelineTemplates/.github/workflows/goreleaser-build.yml@github/goreleaser-build/v0.0.5
-    with:
-      goreleaser-config: .goreleaser.yml
-      snapshot: true
-      clean: true
-      go-version: "1.25.6"
-    secrets:
-      github-token: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Run GoReleaser snapshot build
+        uses: redjax/PipelineTemplates/.github/actions/go-build@gh/goreleaser-build/v0.0.1
+        with:
+          goreleaser-config: .goreleaser.yml
+          snapshot: "true"
+          clean: "true"
+          skip-validate: "false"
+          skip-publish: "true" # snapshot build, no publish
+          goreleaser-version: "latest"
+          go-version: "1.25.6"
+          working-directory: "."
+          docker-build: "false"
+          extra-args: ""
+          dry-run: "false"
+          release-notes: ""
+          artifact-name: ""
+          github-token: ${{ secrets.GITHUB_TOKEN }}

@@ -1,7 +1,7 @@
 ---
 #################################################
 # Build a Go app that exists in a subdirectory, #
-# i.e. apps/go-appname/go.mod                   #
+# i.e. apps/go-example/go.mod                   #
 #################################################
 
 name: Build Go App (monorepo style)
@@ -11,12 +11,20 @@ on:
 
 jobs:
   build:
-    uses: redjax/PipelineTemplates/.github/workflows/go-build.yml@github/go-build/v0.0.7
-    with:
-      module-dir: apps/go-example
-      build-package: ./cmd/example
-      binary-name: ex
-      platforms: linux/amd64,linux/arm64
-      upload-artifacts: true
-      artifact-name: example-dist
-      ldflags: -X main.version=${{ github.sha }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Build Go binaries
+        uses: redjax/PipelineTemplates/.github/actions/go-build@gh/go-build/v0.0.1
+        with:
+          module-dir: apps/go-example # where go.mod lives
+          build-package: ./cmd/example # package relative to module-dir
+          go-version: "1.25.6"
+          binary-name: ex
+          platforms: linux/amd64,linux/arm64
+          upload-artifacts: true
+          artifact-name: example-dist
+          ldflags: -X main.version=${{ github.sha }}
