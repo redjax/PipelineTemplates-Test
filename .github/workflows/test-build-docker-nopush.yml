@@ -1,0 +1,35 @@
+---
+name: Test Docker build (no push)
+
+on:
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: redjax/pipelinetemplates-test-app1
+
+jobs:
+  build-only:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Build app1 without publishing
+        uses: redjax/PipelineTemplates/.github/actions/docker-build-publish@feat/gh-docker-build-publish
+        with:
+          context: containers/app1
+          dockerfile: containers/app1/Dockerfile
+          image_name: ${{ env.IMAGE_NAME }}
+          tags: |
+            pr-${{ github.event.pull_request.number }}
+          push: "false" # just build, don't push
+          platforms: linux/amd64
+          build_args: |
+            GIT_SHA=${{ github.sha }}
+          cache_from: ""
+          cache_to: ""
+          registry: ${{ env.REGISTRY }}
+          registry_username: ${{ github.actor }}
+          registry_password: ${{ secrets.GITHUB_TOKEN }}
