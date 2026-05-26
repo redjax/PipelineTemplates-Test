@@ -3,6 +3,22 @@ name: Test Docker multi-arch build
 
 on:
   workflow_dispatch:
+    inputs:
+      tag:
+        description: "Base tag to use"
+        required: false
+        type: string
+        default: "latest"
+      platforms:
+        description: "Comma-separated platforms"
+        required: false
+        type: string
+        default: "linux/amd64,linux/arm64"
+      push:
+        description: "Push image to registry"
+        required: false
+        type: boolean
+        default: true
 
 env:
   REGISTRY: ghcr.io
@@ -21,10 +37,10 @@ jobs:
         with:
           context: containers/app2
           dockerfile: containers/app2/Dockerfile
-          image_name: redjax/pipelinetemplates-test-app2
+          image_name: ${{ env.IMAGE_NAME }}
           tags: |
-            ghcr.io/redjax/pipelinetemplates-test-app2:${{ inputs.tag }}
-            ghcr.io/redjax/pipelinetemplates-test-app2:sha-${{ github.sha }}
+            ${{ inputs.tag }}
+            sha-${{ github.sha }}
           push: ${{ inputs.push && 'true' || 'false' }}
           platforms: ${{ inputs.platforms }}
           build_args: |
@@ -32,6 +48,6 @@ jobs:
             BUILD_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
           cache_from: ""
           cache_to: ""
-          registry: ghcr.io
+          registry: ${{ env.REGISTRY }}
           registry_username: ${{ github.actor }}
           registry_password: ${{ secrets.GITHUB_TOKEN }}
