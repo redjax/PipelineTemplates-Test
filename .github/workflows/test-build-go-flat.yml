@@ -5,7 +5,7 @@
 # root of the repository.        #
 ##################################
 
-name: Build Go App (flat)
+name: Test build Go App (flat)
 
 on:
   workflow_dispatch:
