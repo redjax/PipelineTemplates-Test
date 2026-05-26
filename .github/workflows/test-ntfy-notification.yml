@@ -61,7 +61,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Simple ntfy notification
-        uses: redjax/PipelineTemplates/.github/actions/notify-ntfy@v0.0.1
+        uses: redjax/PipelineTemplates/.github/actions/notify-ntfy@feat/notify-ntfy
         with:
           ntfy-server: ${{ env.NTFY_SERVER }}
           topic: ${{ env.NTFY_TOPIC }}
@@ -82,7 +82,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Clickable ntfy notification
-        uses: redjax/PipelineTemplates/.github/actions/notify-ntfy@v0.0.1
+        uses: redjax/PipelineTemplates/.github/actions/notify-ntfy@feat/notify-ntfy
         with:
           ntfy-server: ${{ env.NTFY_SERVER }}
           topic: ${{ env.NTFY_TOPIC }}
@@ -103,7 +103,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Markdown ntfy notification
-        uses: redjax/PipelineTemplates/.github/actions/notify-ntfy@v0.0.1
+        uses: redjax/PipelineTemplates/.github/actions/notify-ntfy@feat/notify-ntfy
         with:
           ntfy-server: ${{ env.NTFY_SERVER }}
           topic: ${{ env.NTFY_TOPIC }}
@@ -134,7 +134,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Tagged ntfy notification
-        uses: redjax/PipelineTemplates/.github/actions/notify-ntfy@v0.0.1
+        uses: redjax/PipelineTemplates/.github/actions/notify-ntfy@feat/notify-ntfy
         with:
           ntfy-server: ${{ env.NTFY_SERVER }}
           topic: ${{ env.NTFY_TOPIC }}
@@ -192,7 +192,7 @@ jobs:
           echo "artifact_url=$url" >> "$GITHUB_OUTPUT"
 
       - name: ntfy notification with attachment
-        uses: redjax/PipelineTemplates/.github/actions/notify-ntfy@v0.0.1
+        uses: redjax/PipelineTemplates/.github/actions/notify-ntfy@feat/notify-ntfy
         with:
           ntfy-server: ${{ env.NTFY_SERVER }}
           topic: ${{ env.NTFY_TOPIC }}
@@ -233,7 +233,7 @@ jobs:
           cat reports/message.txt
 
       - name: Send multi-line ntfy notification from file
-        uses: redjax/PipelineTemplates/.github/actions/notify-ntfy@v0.0.1
+        uses: redjax/PipelineTemplates/.github/actions/notify-ntfy@feat/notify-ntfy
         with:
           ntfy-server: ${{ env.NTFY_SERVER }}
           topic: ${{ env.NTFY_TOPIC }}
