@@ -1,0 +1,256 @@
+---
+##################################################
+# Unified test pipeline for ntfy notifications.  #
+#                                                #
+# Requires the following env vars/secrets to be  #
+# set in the repo:                               #
+#                                                #
+# - NTFY_SERVER                                  #
+# - NTFY_TOKEN                                   #
+#                                                #
+##################################################
+
+name: Test ntfy Notifications
+
+on:
+  workflow_dispatch:
+    inputs:
+      simple:
+        description: "Run simple notification"
+        required: false
+        default: false
+        type: boolean
+
+      clickable:
+        description: "Run clickable notification"
+        required: false
+        default: false
+        type: boolean
+
+      markdown:
+        description: "Run markdown notification"
+        required: false
+        default: false
+        type: boolean
+
+      tags:
+        description: "Run tagged notification"
+        required: false
+        default: false
+        type: boolean
+
+      attach:
+        description: "Run attachment notification (artifact URL)"
+        required: false
+        default: false
+        type: boolean
+
+      multiline:
+        description: "Run multi-line message notification"
+        required: false
+        default: false
+        type: boolean
+
+env:
+  NTFY_SERVER: ${{ vars.NTFY_SERVER }}
+  NTFY_TOPIC: ci-builds
+
+jobs:
+  simple:
+    if: inputs.simple
+    runs-on: ubuntu-latest
+    steps:
+      - name: Simple ntfy notification
+        uses: redjax/PipelineTemplates/.github/actions/notify-ntfy@v0.0.1
+        with:
+          ntfy-server: ${{ env.NTFY_SERVER }}
+          topic: ${{ env.NTFY_TOPIC }}
+          title: "ntfy Test"
+          message: "Simple ntfy notification test"
+          priority: "default"
+          tags: ""
+          click-url: ""
+          actions: ""
+          attach: ""
+          raw-body: ""
+          user-agent: "redjax/PipelineTemplates"
+          auth-token: ${{ secrets.NTFY_TOKEN }}
+          debug: "false"
+
+  clickable:
+    if: inputs.clickable
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clickable ntfy notification
+        uses: redjax/PipelineTemplates/.github/actions/notify-ntfy@v0.0.1
+        with:
+          ntfy-server: ${{ env.NTFY_SERVER }}
+          topic: ${{ env.NTFY_TOPIC }}
+          title: "ntfy Test"
+          message: "Click to open workflow run"
+          priority: "high"
+          tags: "github,ci,clickable"
+          click-url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          actions: ""
+          attach: ""
+          raw-body: ""
+          user-agent: "redjax/PipelineTemplates"
+          auth-token: ${{ secrets.NTFY_TOKEN }}
+          debug: "false"
+
+  markdown:
+    if: inputs.markdown
+    runs-on: ubuntu-latest
+    steps:
+      - name: Markdown ntfy notification
+        uses: redjax/PipelineTemplates/.github/actions/notify-ntfy@v0.0.1
+        with:
+          ntfy-server: ${{ env.NTFY_SERVER }}
+          topic: ${{ env.NTFY_TOPIC }}
+          title: "ntfy Test - Markdown"
+          # Multi-line markdown body
+          raw-body: |
+            ## ntfy Pipeline Test - Markdown
+
+            This is a test notification from:
+
+            - Repository: `${{ github.repository }}`
+            - Branch: `${{ github.ref_name }}`
+            - Commit: `${{ github.sha }}`
+
+            View run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          message: ""
+          priority: "default"
+          tags: "github,ci,markdown"
+          click-url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          actions: ""
+          attach: ""
+          user-agent: "redjax/PipelineTemplates"
+          auth-token: ${{ secrets.NTFY_TOKEN }}
+          debug: "false"
+
+  tags:
+    if: inputs.tags
+    runs-on: ubuntu-latest
+    steps:
+      - name: Tagged ntfy notification
+        uses: redjax/PipelineTemplates/.github/actions/notify-ntfy@v0.0.1
+        with:
+          ntfy-server: ${{ env.NTFY_SERVER }}
+          topic: ${{ env.NTFY_TOPIC }}
+          title: "ntfy Test - Tagged"
+          message: "Notification with multiple tags for filtering."
+          priority: "default"
+          tags: "github,ci,test,${{ github.ref_name }}"
+          click-url: ""
+          actions: ""
+          attach: ""
+          raw-body: ""
+          user-agent: "redjax/PipelineTemplates"
+          auth-token: ${{ secrets.NTFY_TOKEN }}
+          debug: "false"
+
+  attach:
+    if: inputs.attach
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Generate simple report
+        run: |
+          mkdir -p reports
+          echo "ntfy attachment test report" > reports/report.txt
+          echo "Repository: ${GITHUB_REPOSITORY}" >> reports/report.txt
+          echo "Run: ${GITHUB_RUN_NUMBER}" >> reports/report.txt
+
+      - name: Upload report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ntfy-report
+          path: reports/report.txt
+
+      - name: Get artifact download URL
+        id: artifact_url
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          api_url="https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts"
+          url="$(
+            curl -s \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+              "$api_url" \
+            | jq -r '.artifacts[] | select(.name=="ntfy-report") | .archive_download_url'
+          )"
+
+          if [[ -z "$url" || "$url" == "null" ]]; then
+            echo "No artifact URL found for name 'ntfy-report'" >&2
+            exit 1
+          fi
+
+          echo "artifact_url=$url" >> "$GITHUB_OUTPUT"
+
+      - name: ntfy notification with attachment
+        uses: redjax/PipelineTemplates/.github/actions/notify-ntfy@v0.0.1
+        with:
+          ntfy-server: ${{ env.NTFY_SERVER }}
+          topic: ${{ env.NTFY_TOPIC }}
+          title: "ntfy Test - Attachment"
+          message: "Report attached for run ${{ github.run_number }}."
+          priority: "default"
+          tags: "github,ci,attachment"
+          click-url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          actions: ""
+          attach: ${{ steps.artifact_url.outputs.artifact_url }}
+          raw-body: ""
+          user-agent: "redjax/PipelineTemplates"
+          auth-token: ${{ secrets.NTFY_TOKEN }}
+          debug: "true"
+
+  multiline:
+    if: inputs.multiline
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate file list for message
+        id: generate_list
+        shell: bash
+        run: |
+          mkdir -p reports
+          git ls-files | head -n 10 > reports/files.txt
+
+          {
+            echo "File list for run ${GITHUB_RUN_NUMBER}"
+            echo
+            echo "Repository: ${GITHUB_REPOSITORY}"
+            echo "Commit: ${GITHUB_SHA}"
+            echo
+            echo "First 10 files:"
+            sed 's/^/- /' reports/files.txt
+          } > reports/message.txt
+
+          echo "Prepared message:"
+          cat reports/message.txt
+
+      - name: Send multi-line ntfy notification from file
+        uses: redjax/PipelineTemplates/.github/actions/notify-ntfy@v0.0.1
+        with:
+          ntfy-server: ${{ env.NTFY_SERVER }}
+          topic: ${{ env.NTFY_TOPIC }}
+          title: "ntfy Test - Multi-line"
+          raw-body: |
+            File list for run ${{ github.run_number }}
+
+            Repository: ${{ github.repository }}
+            Commit: ${{ github.sha }}
+
+            (See workflow logs for the first 10 files.)
+          message: ""
+          priority: "default"
+          tags: "github,ci,multiline"
+          click-url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          actions: ""
+          attach: ""
+          user-agent: "redjax/PipelineTemplates"
+          auth-token: ${{ secrets.NTFY_TOKEN }}
+          debug: "false"
