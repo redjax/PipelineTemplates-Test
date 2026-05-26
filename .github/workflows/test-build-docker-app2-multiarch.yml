@@ -1,5 +1,5 @@
 ---
-name: Docker Build app2 (multi-arch)
+name: Test Docker multi-arch build
 
 on:
   workflow_dispatch:

@@ -1,5 +1,5 @@
 ---
-name: Docker Build app1 (GHCR)
+name: Test Docker build & push to GHCR
 
 on:
   workflow_dispatch:

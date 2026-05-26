@@ -1,5 +1,5 @@
 ---
-name: Docker Build (no push)
+name: Test Docker build (no push)
 
 on:
   workflow_dispatch:
