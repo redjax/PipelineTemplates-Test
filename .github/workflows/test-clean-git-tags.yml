@@ -1,0 +1,79 @@
+---
+###############################################
+# Test workflow for clean-tags-releases action #
+###############################################
+
+name: Test Clean GitHub Tags Releases
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Cleanup mode
+        required: true
+        type: choice
+        default: keep-latest
+        options:
+          - keep-latest
+          - older-than
+
+      keep_latest:
+        description: Number of newest releases to keep (mode=keep-latest)
+        required: false
+        default: "10"
+        type: string
+
+      older_than:
+        description: Delete releases older than YYYY-MM-DD (mode=older-than)
+        required: false
+        type: string
+
+      tag_pattern:
+        description: Regex pattern for tag names (optional)
+        required: false
+        type: string
+        default: ""
+
+      dry_run:
+        description: Preview deletions only
+        required: false
+        default: true
+        type: boolean
+
+      pipelinetemplates_ref:
+        description: Branch/tag/ref for pipelinetemplates action
+        required: false
+        default: "feat/gh-tag-releases-clean"
+        type: string
+
+jobs:
+  test-clean-tags:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Display test configuration
+        run: |
+          echo "=== Test Configuration ==="
+          echo "Mode: ${{ github.event.inputs.mode }}"
+          echo "Keep Latest: ${{ github.event.inputs.keep_latest }}"
+          echo "Older Than: ${{ github.event.inputs.older_than }}"
+          echo "Tag Pattern: ${{ github.event.inputs.tag_pattern }}"
+          echo "Dry Run: ${{ github.event.inputs.dry_run }}"
+          echo "Action Ref: ${{ github.event.inputs.pipelinetemplates_ref }}"
+          echo "=========================="
+
+      - name: Clean GitHub tags/releases
+        uses: redjax/PipelineTemplates/.github/actions/clean-tags-releases@${{ github.event.inputs.pipelinetemplates_ref }}
+        with:
+          mode: ${{ github.event.inputs.mode }}
+          keep_latest: ${{ github.event.inputs.keep_latest }}
+          older_than: ${{ github.event.inputs.older_than }}
+          tag_pattern: ${{ github.event.inputs.tag_pattern }}
+          dry_run: ${{ github.event.inputs.dry_run }}
