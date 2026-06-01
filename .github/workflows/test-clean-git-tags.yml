@@ -43,7 +43,7 @@ on:
       pipelinetemplates_ref:
         description: Branch/tag/ref for pipelinetemplates action
         required: false
-        default: "feat/gh-tag-releases-clean"
+        default: "clean-tags-releases@gh/clean-tags-releases/v0.1.0"
         type: string
 
 jobs:
@@ -70,7 +70,7 @@ jobs:
           echo "=========================="
 
       - name: Clean GitHub tags/releases
-        uses: redjax/PipelineTemplates/.github/actions/clean-tags-releases@feat/gh-tag-releases-clean
+        uses: redjax/PipelineTemplates/.github/actions/clean-tags-releases@gh/clean-tags-releases/v0.1.0
         with:
           mode: ${{ github.event.inputs.mode }}
           keep_latest: ${{ github.event.inputs.keep_latest }}
