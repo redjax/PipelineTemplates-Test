@@ -70,7 +70,7 @@ jobs:
           echo "=========================="
 
       - name: Clean GitHub tags/releases
-        uses: redjax/PipelineTemplates/.github/actions/clean-tags-releases@${{ github.event.inputs.pipelinetemplates_ref }}
+        uses: redjax/PipelineTemplates/.github/actions/clean-tags-releases@feat/gh-tag-releases-clean
         with:
           mode: ${{ github.event.inputs.mode }}
           keep_latest: ${{ github.event.inputs.keep_latest }}
