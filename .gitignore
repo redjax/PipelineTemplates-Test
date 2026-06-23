@@ -1,1 +1,15 @@
 dist/
+
+## Secrets
+.env/
+env/
+*.env
+*.local
+*.local.*
+*.secrets
+*.secrets.*
+*.secret
+*.secret.*
+
+## Misc
+.ansible/
