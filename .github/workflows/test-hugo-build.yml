@@ -1,0 +1,29 @@
+---
+name: test-hugo-build
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "apps/hugo-site/**"
+      - ".github/workflows/test-hugo-build.yml"
+
+jobs:
+  build-hugo-root:
+    runs-on: ubuntu-latest
+    if: false
+
+  build-hugo-subdir:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout test repo
+        uses: actions/checkout@v7
+
+      - name: Build Hugo site using template Action
+        uses: redjax/pipelinetemplates/.github/actions/hugo-build@feat/gh-hugo-build-deploy
+        with:
+          source-dir: "apps/hugo-site"
+          public-dir: "public"
+          check-changed: "false"
+          use-cache: "true"
+          build-flags: "--gc --minify --enableGitInfo"
