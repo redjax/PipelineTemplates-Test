@@ -1,0 +1,31 @@
+---
+name: test-hugo-publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Publish target: branch, github-pages, or cloudflare-pages."
+        required: true
+        type: choice
+        options:
+          - branch
+          - github-pages
+          - cloudflare-pages
+        default: branch
+
+jobs:
+  publish-hugo-site:
+    uses: redjax/pipelinetemplates/.github/workflows/hugo-publish.yml@feat/gh-hugo-build-deploy
+    with:
+      target: ${{ inputs.target }}
+      artifact-name: hugo-site
+      branch-name: gh-pages
+      commit-message: "Deploy Hugo site from test repo"
+      cloudflare-pages-project: "your-cloudflare-pages-project"
+      cloudflare-pages-branch: ${{ github.ref_name }}
+      cloudflare-pages-directory: public
+      dry-run: false
+    secrets:
+      cloudflare-api-token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      cloudflare-account-id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
