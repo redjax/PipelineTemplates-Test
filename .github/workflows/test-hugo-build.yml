@@ -10,6 +10,34 @@ on:
         type: boolean
         default: false
 
+      publish-target:
+        description: "Where to publish the site if publish-on-build is true."
+        required: false
+        type: choice
+        options:
+          - branch
+          - github-pages
+          - cloudflare-pages
+        default: branch
+
+      cloudflare-pages-project:
+        description: "Cloudflare Pages project name."
+        required: false
+        type: string
+        default: ""
+
+      cloudflare-pages-branch:
+        description: "Cloudflare branch name."
+        required: false
+        type: string
+        default: ""
+
+      cloudflare-pages-directory:
+        description: "Directory to deploy to Cloudflare Pages."
+        required: false
+        type: string
+        default: "public"
+
   push:
     paths:
       - "apps/hugo-site/**"
