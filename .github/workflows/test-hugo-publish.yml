@@ -51,7 +51,7 @@ on:
         default: "public"
 
       dry-run:
-        description: "If true, do not push/deploy."
+        description: "Do a dry run without publishing."
         required: false
         type: boolean
         default: false
