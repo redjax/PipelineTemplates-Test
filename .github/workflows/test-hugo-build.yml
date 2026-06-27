@@ -71,6 +71,8 @@ jobs:
         run: |
           gh workflow run test-hugo-publish.yml \
             --ref "${{ github.ref_name }}" \
-            -f target=branch
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            -f target='${{ inputs.publish-target }}' \
+            -f run-id='${{ github.run_id }}' \
+            -f cloudflare-pages-project='${{ inputs.cloudflare-pages-project }}' \
+            -f cloudflare-pages-branch='${{ inputs.cloudflare-pages-branch }}' \
+            -f cloudflare-pages-directory='${{ inputs.cloudflare-pages-directory }}'
