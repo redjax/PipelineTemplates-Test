@@ -3,6 +3,13 @@ name: test-hugo-build
 
 on:
   workflow_dispatch:
+    inputs:
+      publish-on-build:
+        description: "If true, trigger publish workflow after a successful build."
+        required: false
+        type: boolean
+        default: false
+
   push:
     paths:
       - "apps/hugo-site/**"
@@ -11,6 +18,9 @@ on:
 jobs:
   build-hugo-subdir:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
     steps:
       - name: Checkout test repo
         uses: actions/checkout@v7
@@ -28,3 +38,12 @@ jobs:
           artifact-name: "hugo-site"
           artifact-if-no-files-found: "error"
           artifact-retention-days: "7"
+
+      - name: Trigger publish workflow
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish-on-build == true }}
+        run: |
+          gh workflow run test-hugo-publish.yml \
+            --ref "${{ github.ref_name }}" \
+            -f target=branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
