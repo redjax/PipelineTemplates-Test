@@ -9,10 +9,6 @@ on:
       - ".github/workflows/test-hugo-build.yml"
 
 jobs:
-  build-hugo-root:
-    runs-on: ubuntu-latest
-    if: false
-
   build-hugo-subdir:
     runs-on: ubuntu-latest
     steps:
