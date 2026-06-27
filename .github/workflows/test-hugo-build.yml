@@ -26,6 +26,5 @@ jobs:
           build-flags: "--gc --minify"
           publish-artifact: "true"
           artifact-name: "hugo-site"
-          artifact-path: "apps/hugo-site/public"
           artifact-if-no-files-found: "error"
           artifact-retention-days: "7"
