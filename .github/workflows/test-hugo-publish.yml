@@ -36,13 +36,13 @@ on:
         description: "Cloudflare Pages project name."
         required: false
         type: string
-        default: ""
+        default: "pipelinetemplatest-test-hugo"
 
       cloudflare-pages-branch:
         description: "Cloudflare branch name."
         required: false
         type: string
-        default: ""
+        default: "main"
 
       cloudflare-pages-directory:
         description: "Directory to deploy to Cloudflare Pages."
