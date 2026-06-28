@@ -91,35 +91,14 @@ jobs:
 
           echo "run-id=$latest_run_id" >> "$GITHUB_OUTPUT"
 
-  publish-branch:
-    if: ${{ inputs.target == 'branch' }}
+  publish:
     needs: resolve-run
     uses: redjax/pipelinetemplates/.github/workflows/hugo-publish.yml@feat/gh-hugo-build-deploy
     with:
-      target: branch
+      target: ${{ inputs.target }}
       artifact-name: hugo-site
       branch-name: ${{ inputs.branch-name }}
       commit-message: ${{ inputs.commit-message }}
-      dry-run: ${{ inputs.dry-run }}
-    secrets: inherit
-
-  publish-github-pages:
-    if: ${{ inputs.target == 'github-pages' }}
-    needs: resolve-run
-    uses: redjax/pipelinetemplates/.github/workflows/hugo-publish.yml@feat/gh-hugo-build-deploy
-    with:
-      target: github-pages
-      artifact-name: hugo-site
-      dry-run: ${{ inputs.dry-run }}
-    secrets: inherit
-
-  publish-cloudflare-pages:
-    if: ${{ inputs.target == 'cloudflare-pages' }}
-    needs: resolve-run
-    uses: redjax/pipelinetemplates/.github/workflows/hugo-publish.yml@feat/gh-hugo-build-deploy
-    with:
-      target: cloudflare-pages
-      artifact-name: hugo-site
       cloudflare-pages-project: ${{ inputs.cloudflare-pages-project }}
       cloudflare-pages-branch: ${{ inputs.cloudflare-pages-branch }}
       cloudflare-pages-directory: ${{ inputs.cloudflare-pages-directory }}
