@@ -81,14 +81,9 @@ jobs:
             exit 0
           fi
 
-          latest_run_id="$(gh run list -R "$REPO" \
-            --workflow test-hugo-build.yml \
-            --limit 20 \
-            --json databaseId,conclusion \
-            --jq '.[] | select(.conclusion == "success") | .databaseId' \
-            | head -n 1)"
+          latest_run_id="$(gh api "repos/${REPO}/actions/workflows/test-hugo-build.yml/runs?status=success&per_page=1" --jq '.workflow_runs[0].id')"
 
-          if [ -z "$latest_run_id" ]; then
+          if [ -z "$latest_run_id" ] || [ "$latest_run_id" = "null" ]; then
             echo "No successful test-hugo-build run found."
             exit 1
           fi
