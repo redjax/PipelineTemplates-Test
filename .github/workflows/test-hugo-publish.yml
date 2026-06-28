@@ -96,6 +96,7 @@ jobs:
     uses: redjax/pipelinetemplates/.github/workflows/hugo-publish.yml@feat/gh-hugo-build-deploy
     with:
       target: ${{ inputs.target }}
+      run-id: ${{ needs.resolve-run.outputs.run-id }}
       artifact-name: hugo-site
       branch-name: ${{ inputs.branch-name }}
       commit-message: ${{ inputs.commit-message }}
