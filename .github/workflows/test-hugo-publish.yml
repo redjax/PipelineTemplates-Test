@@ -4,16 +4,29 @@ name: test-hugo-publish
 on:
   workflow_dispatch:
     inputs:
-      target:
-        description: "Publish target: branch, github-pages, cloudflare-pages, or github-release."
-        required: true
-        type: choice
-        options:
-          - branch
-          - github-pages
-          - cloudflare-pages
-          - github-release
-        default: branch
+      branch:
+        description: "Publish to branch."
+        required: false
+        type: boolean
+        default: true
+
+      github-pages:
+        description: "Publish to GitHub Pages."
+        required: false
+        type: boolean
+        default: false
+
+      cloudflare-pages:
+        description: "Publish to Cloudflare Pages."
+        required: false
+        type: boolean
+        default: false
+
+      github-release:
+        description: "Publish to GitHub Release."
+        required: false
+        type: boolean
+        default: false
 
       run-id:
         description: "Build workflow run ID to publish from. Leave blank to use the most recent successful build."
@@ -87,6 +100,7 @@ jobs:
     outputs:
       run-id: ${{ steps.pick.outputs.run-id }}
       release-name: ${{ steps.meta.outputs.release-name }}
+      targets: ${{ steps.targets.outputs.targets }}
     steps:
       - name: Pick build run id
         id: pick
@@ -116,8 +130,6 @@ jobs:
         shell: bash
         env:
           INPUT_RELEASE_NAME: ${{ inputs.release-name }}
-          RELEASE_VERSION: ${{ inputs.release-version }}
-          RELEASE_TAG: ${{ inputs.release-tag }}
           GITHUB_SHA: ${{ github.sha }}
         run: |
           set -Eeuo pipefail
@@ -130,11 +142,51 @@ jobs:
 
           echo "release-name=$NAME" >> "$GITHUB_OUTPUT"
 
+      - name: Compute selected targets
+        id: targets
+        shell: bash
+        env:
+          DO_BRANCH: ${{ inputs.branch }}
+          DO_GH_PAGES: ${{ inputs.github-pages }}
+          DO_CF_PAGES: ${{ inputs.cloudflare-pages }}
+          DO_GH_RELEASE: ${{ inputs.github-release }}
+        run: |
+          set -Eeuo pipefail
+
+          targets=()
+
+          if [[ "${DO_BRANCH}" == "true" ]]; then
+            targets+=("branch")
+          fi
+
+          if [[ "${DO_GH_PAGES}" == "true" ]]; then
+            targets+=("github-pages")
+          fi
+
+          if [[ "${DO_CF_PAGES}" == "true" ]]; then
+            targets+=("cloudflare-pages")
+          fi
+
+          if [[ "${DO_GH_RELEASE}" == "true" ]]; then
+            targets+=("github-release")
+          fi
+
+          if (( ${#targets[@]} == 0 )); then
+            targets+=("branch")
+          fi
+
+          json="$(printf '%s\n' "${targets[@]}" | jq -R . | jq -s .)"
+          echo "targets=${json}" >> "$GITHUB_OUTPUT"
+
   publish:
     needs: resolve-run
+    strategy:
+      fail-fast: false
+      matrix:
+        target: ${{ fromJSON(needs.resolve-run.outputs.targets) }}
     uses: redjax/pipelinetemplates/.github/workflows/hugo-publish.yml@feat/release-artifact-types
     with:
-      target: ${{ inputs.target }}
+      target: ${{ matrix.target }}
       run-id: ${{ needs.resolve-run.outputs.run-id }}
       artifact-name: hugo-site
       branch-name: ${{ inputs.branch-name }}
