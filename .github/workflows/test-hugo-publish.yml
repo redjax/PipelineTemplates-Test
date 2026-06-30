@@ -5,13 +5,14 @@ on:
   workflow_dispatch:
     inputs:
       target:
-        description: "Publish target: branch, github-pages, or cloudflare-pages."
+        description: "Publish target: branch, github-pages, cloudflare-pages, or github-release."
         required: true
         type: choice
         options:
           - branch
           - github-pages
           - cloudflare-pages
+          - github-release
         default: branch
 
       run-id:
@@ -50,6 +51,24 @@ on:
         type: string
         default: "public"
 
+      release-name:
+        description: "GitHub release name."
+        required: false
+        type: string
+        default: ""
+
+      release-version:
+        description: "Optional version string used to build a tag and archive names."
+        required: false
+        type: string
+        default: ""
+
+      release-tag:
+        description: "Optional explicit Git tag to use for the GitHub release."
+        required: false
+        type: string
+        default: ""
+
       dry-run:
         description: "Do a dry run without publishing."
         required: false
@@ -67,6 +86,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       run-id: ${{ steps.pick.outputs.run-id }}
+      release-name: ${{ steps.meta.outputs.release-name }}
     steps:
       - name: Pick build run id
         id: pick
@@ -91,6 +111,25 @@ jobs:
 
           echo "run-id=$latest_run_id" >> "$GITHUB_OUTPUT"
 
+      - name: Compute release name
+        id: meta
+        shell: bash
+        env:
+          INPUT_RELEASE_NAME: ${{ inputs.release-name }}
+          RELEASE_VERSION: ${{ inputs.release-version }}
+          RELEASE_TAG: ${{ inputs.release-tag }}
+          GITHUB_SHA: ${{ github.sha }}
+        run: |
+          set -Eeuo pipefail
+
+          if [ -n "$INPUT_RELEASE_NAME" ]; then
+            NAME="$INPUT_RELEASE_NAME"
+          else
+            NAME="site-${GITHUB_SHA:0:7}"
+          fi
+
+          echo "release-name=$NAME" >> "$GITHUB_OUTPUT"
+
   publish:
     needs: resolve-run
     uses: redjax/pipelinetemplates/.github/workflows/hugo-publish.yml@feat/release-artifact-types
@@ -103,6 +142,9 @@ jobs:
       cloudflare-pages-project: ${{ inputs.cloudflare-pages-project }}
       cloudflare-pages-branch: ${{ inputs.cloudflare-pages-branch }}
       cloudflare-pages-directory: ${{ inputs.cloudflare-pages-directory }}
+      release-name: ${{ needs.resolve-run.outputs.release-name }}
+      release-version: ${{ inputs.release-version }}
+      release-tag: ${{ inputs.release-tag }}
       dry-run: ${{ inputs.dry-run }}
     secrets:
       cloudflare-api-token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
