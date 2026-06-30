@@ -175,8 +175,8 @@ jobs:
             targets+=("branch")
           fi
 
-          json="$(printf '%s\n' "${targets[@]}" | jq -R . | jq -s .)"
-          echo "targets=${json}" >> "$GITHUB_OUTPUT"
+          targets_json="$(printf '%s\n' "${targets[@]}" | jq -R . | jq -s -c .)"
+          echo "targets=${targets_json}" >> "$GITHUB_OUTPUT"
 
   publish:
     needs: resolve-run
