@@ -62,6 +62,12 @@ on:
       - ".github/workflows/test-hugo-site.yml"
       - ".github/workflows/hugo-version-bump.yml"
 
+permissions:
+  actions: read
+  contents: write
+  pages: write
+  id-token: write
+
 jobs:
   site:
     uses: redjax/pipelinetemplates/.github/workflows/hugo-site.yml@feat/hugo-site-pipeline-implementation
