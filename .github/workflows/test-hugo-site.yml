@@ -1,4 +1,3 @@
----
 name: Test Hugo Site (build & release)
 
 on:
@@ -18,6 +17,12 @@ on:
 
       deploy-cloudflare-pages:
         description: "Deploy to Cloudflare Pages"
+        required: false
+        type: boolean
+        default: false
+
+      deploy-github-release:
+        description: "Create GitHub Release"
         required: false
         type: boolean
         default: false
@@ -73,6 +78,9 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       artifact-name: ${{ steps.meta.outputs.artifact-name }}
+      release-version: ${{ steps.meta.outputs.release-version }}
+      release-name: ${{ steps.meta.outputs.release-name }}
+      release-tag: ${{ steps.meta.outputs.release-tag }}
     steps:
       - uses: actions/checkout@v7
 
@@ -96,17 +104,51 @@ jobs:
           archive-output-dir: dist
           archive-format: both
 
-      - name: Export artifact name
+      - name: Compute release metadata
         id: meta
         shell: bash
-        run: echo "artifact-name=hugo-site" >> "$GITHUB_OUTPUT"
+        env:
+          VERSIONING_MODE: ${{ inputs.versioning-mode }}
+          MANUAL_VERSION: ${{ inputs.manual-version }}
+          GITHUB_SHA: ${{ github.sha }}
+        run: |
+          set -Eeuo pipefail
+          version=""
+          tag=""
+          name=""
+
+          case "${VERSIONING_MODE}" in
+            none)
+              ;;
+            manual)
+              if [[ -n "${MANUAL_VERSION}" ]]; then
+                version="${MANUAL_VERSION#v}"
+                version="${version#hugo/}"
+                tag="site-v${version}"
+                name="Site v${version}"
+              else
+                version="${GITHUB_SHA::7}"
+                tag="site-${version}"
+                name="site-${version}"
+              fi
+              ;;
+            auto)
+              version="${GITHUB_SHA::7}"
+              tag="site-${version}"
+              name="site-${version}"
+              ;;
+          esac
+
+          echo "artifact-name=hugo-site" >> "$GITHUB_OUTPUT"
+          echo "release-version=${version}" >> "$GITHUB_OUTPUT"
+          echo "release-name=${name}" >> "$GITHUB_OUTPUT"
+          echo "release-tag=${tag}" >> "$GITHUB_OUTPUT"
 
   publish-branch:
     needs: build
     if: ${{ inputs.deploy-branch == true }}
-    uses: redjax/pipelinetemplates/.github/workflows/hugo-publish.yml@feat/hugo-site-pipeline-implementation
+    uses: redjax/pipelinetemplates/.github/workflows/hugo-publish-branch.yml@feat/hugo-site-pipeline-implementation
     with:
-      target: branch
       run-id: ${{ github.run_id }}
       artifact-name: ${{ needs.build.outputs.artifact-name }}
       branch-name: ${{ inputs.branch-name }}
@@ -117,9 +159,8 @@ jobs:
   publish-github-pages:
     needs: build
     if: ${{ inputs.deploy-github-pages == true }}
-    uses: redjax/pipelinetemplates/.github/workflows/hugo-publish.yml@feat/hugo-site-pipeline-implementation
+    uses: redjax/pipelinetemplates/.github/workflows/hugo-publish-github-pages.yml@feat/hugo-site-pipeline-implementation
     with:
-      target: github-pages
       run-id: ${{ github.run_id }}
       artifact-name: ${{ needs.build.outputs.artifact-name }}
       dry-run: false
@@ -128,13 +169,25 @@ jobs:
   publish-cloudflare-pages:
     needs: build
     if: ${{ inputs.deploy-cloudflare-pages == true }}
-    uses: redjax/pipelinetemplates/.github/workflows/hugo-publish.yml@feat/hugo-site-pipeline-implementation
+    uses: redjax/pipelinetemplates/.github/workflows/hugo-publish-cloudflare-pages.yml@feat/hugo-site-pipeline-implementation
     with:
-      target: cloudflare-pages
       run-id: ${{ github.run_id }}
       artifact-name: ${{ needs.build.outputs.artifact-name }}
       cloudflare-pages-project: ${{ inputs.cloudflare-pages-project }}
       cloudflare-pages-branch: ${{ inputs.cloudflare-pages-branch }}
       cloudflare-pages-directory: public
+      dry-run: false
+    secrets: inherit
+
+  publish-github-release:
+    needs: build
+    if: ${{ inputs.deploy-github-release == true }}
+    uses: redjax/pipelinetemplates/.github/workflows/hugo-publish-github-release.yml@feat/hugo-site-pipeline-implementation
+    with:
+      run-id: ${{ github.run_id }}
+      artifact-name: ${{ needs.build.outputs.artifact-name }}
+      release-name: ${{ needs.build.outputs.release-name }}
+      release-version: ${{ needs.build.outputs.release-version }}
+      release-tag: ${{ needs.build.outputs.release-tag }}
       dry-run: false
     secrets: inherit
