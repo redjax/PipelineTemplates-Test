@@ -79,6 +79,7 @@ jobs:
         run: |
           set -Eeuo pipefail
 
+          ## Convert the selected checkbox inputs into a JSON matrix for the deploy job.
           targets=()
           [[ "${{ inputs.deploy-branch }}" == "true" ]] && targets+=("branch")
           [[ "${{ inputs.deploy-github-pages }}" == "true" ]] && targets+=("github-pages")
@@ -90,14 +91,9 @@ jobs:
           fi
 
           json='{"include":['
-          first=true
-          for t in "${targets[@]}"; do
-            if [[ "$first" == true ]]; then
-              first=false
-            else
-              json+=','
-            fi
-            json+='{"target":"'"$t"'"}'
+          for i in "${!targets[@]}"; do
+            [[ $i -gt 0 ]] && json+=','
+            json+='{"target":"'"${targets[$i]}"'"}'
           done
           json+=']}'
 
