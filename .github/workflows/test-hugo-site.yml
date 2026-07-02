@@ -1,0 +1,95 @@
+---
+name: test-hugo-site
+
+on:
+  workflow_dispatch:
+    inputs:
+      deploy-target:
+        description: "Where to publish the site."
+        required: false
+        type: choice
+        options:
+          - branch
+          - github-pages
+          - cloudflare-pages
+        default: branch
+
+      branch-name:
+        description: "Target branch for branch deploys."
+        required: false
+        type: string
+        default: gh-pages
+
+      commit-message:
+        description: "Commit message for branch deploys."
+        required: false
+        type: string
+        default: Deploy Hugo site from test repo
+
+      cloudflare-pages-project:
+        description: "Cloudflare Pages project name."
+        required: false
+        type: string
+        default: pipelinetemplatest-test-hugo
+
+      cloudflare-pages-branch:
+        description: "Cloudflare branch name."
+        required: false
+        type: string
+        default: main
+
+      versioning-mode:
+        description: "Versioning mode for releases."
+        required: false
+        type: choice
+        options:
+          - none
+          - auto
+          - manual
+        default: none
+
+      manual-version:
+        description: "Explicit version for manual release runs."
+        required: false
+        type: string
+        default: ""
+
+  push:
+    branches:
+      - main
+    paths:
+      - "apps/hugo-site/**"
+      - ".github/workflows/test-hugo-site.yml"
+      - ".github/workflows/hugo-version-bump.yml"
+
+jobs:
+  site:
+    uses: redjax/pipelinetemplates/.github/workflows/hugo-site.yml@feat/hugo-site-pipeline-implementation
+    with:
+      source-dir: apps/hugo-site
+      public-dir: public
+      build-flags: --gc --minify
+      hugo-version: "0.161.1"
+      extended: true
+      use-cache: true
+      artifact-name: hugo-site
+      archive-name: site
+      archive-output-dir: dist
+      archive-format: both
+      check-changed: false
+      changed-paths-mode: default
+      changed-paths: ""
+      deploy-target: ${{ inputs.deploy-target || 'branch' }}
+      versioning-mode: ${{ inputs.versioning-mode || 'none' }}
+      version-file: .version
+      manual-version: ${{ inputs.manual-version || '' }}
+      create-release: true
+      deploy-pages: true
+      branch-name: ${{ inputs.branch-name || 'gh-pages' }}
+      commit-message: ${{ inputs.commit-message || 'Deploy Hugo site from test repo' }}
+      cloudflare-pages-project: ${{ inputs.cloudflare-pages-project || 'pipelinetemplatest-test-hugo' }}
+      cloudflare-pages-branch: ${{ inputs.cloudflare-pages-branch || 'main' }}
+      cloudflare-pages-directory: public
+      base-url: ""
+      release-prefix: site
+    secrets: inherit
