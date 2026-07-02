@@ -90,7 +90,7 @@ permissions:
 jobs:
   version-bump:
     if: ${{ inputs.release-mode == 'versioned' }}
-    uses: ./.github/workflows/hugo-version-bump.yml
+    uses: redjax/pipelinetemplates/.github/workflows/hugo-version-bump.yml@feat/versioned-hugo-release
     with:
       source-dir: ${{ inputs.source-dir }}
       version-file: ${{ inputs.version-file }}
