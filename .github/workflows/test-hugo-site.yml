@@ -4,15 +4,23 @@ name: test-hugo-site
 on:
   workflow_dispatch:
     inputs:
-      deploy-target:
-        description: "Where to publish the site."
+      deploy-branch:
+        description: "Deploy to branch"
         required: false
-        type: choice
-        options:
-          - branch
-          - github-pages
-          - cloudflare-pages
-        default: branch
+        type: boolean
+        default: true
+
+      deploy-github-pages:
+        description: "Deploy to GitHub Pages"
+        required: false
+        type: boolean
+        default: false
+
+      deploy-cloudflare-pages:
+        description: "Deploy to Cloudflare Pages"
+        required: false
+        type: boolean
+        default: false
 
       branch-name:
         description: "Target branch for branch deploys."
@@ -54,14 +62,6 @@ on:
         type: string
         default: ""
 
-  push:
-    branches:
-      - main
-    paths:
-      - "apps/hugo-site/**"
-      - ".github/workflows/test-hugo-site.yml"
-      - ".github/workflows/hugo-version-bump.yml"
-
 permissions:
   actions: read
   contents: write
@@ -69,7 +69,46 @@ permissions:
   id-token: write
 
 jobs:
+  prepare-targets:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.out.outputs.matrix }}
+    steps:
+      - id: out
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+
+          targets=()
+          [[ "${{ inputs.deploy-branch }}" == "true" ]] && targets+=("branch")
+          [[ "${{ inputs.deploy-github-pages }}" == "true" ]] && targets+=("github-pages")
+          [[ "${{ inputs.deploy-cloudflare-pages }}" == "true" ]] && targets+=("cloudflare-pages")
+
+          if [[ ${#targets[@]} -eq 0 ]]; then
+            echo 'matrix={"include":[]}' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          json='{"include":['
+          first=true
+          for t in "${targets[@]}"; do
+            if [[ "$first" == true ]]; then
+              first=false
+            else
+              json+=','
+            fi
+            json+='{"target":"'"$t"'"}'
+          done
+          json+=']}'
+
+          echo "matrix=${json}" >> "$GITHUB_OUTPUT"
+
   site:
+    needs: prepare-targets
+    if: ${{ needs.prepare-targets.outputs.matrix != '{"include":[]}' }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.prepare-targets.outputs.matrix) }}
     uses: redjax/pipelinetemplates/.github/workflows/hugo-site.yml@feat/hugo-site-pipeline-implementation
     with:
       source-dir: apps/hugo-site
@@ -85,16 +124,16 @@ jobs:
       check-changed: false
       changed-paths-mode: default
       changed-paths: ""
-      deploy-target: ${{ inputs.deploy-target || 'branch' }}
-      versioning-mode: ${{ inputs.versioning-mode || 'none' }}
+      deploy-target: ${{ matrix.target }}
+      versioning-mode: ${{ inputs.versioning-mode }}
       version-file: .version
-      manual-version: ${{ inputs.manual-version || '' }}
+      manual-version: ${{ inputs.manual-version }}
       create-release: true
       deploy-pages: true
-      branch-name: ${{ inputs.branch-name || 'gh-pages' }}
-      commit-message: ${{ inputs.commit-message || 'Deploy Hugo site from test repo' }}
-      cloudflare-pages-project: ${{ inputs.cloudflare-pages-project || 'pipelinetemplatest-test-hugo' }}
-      cloudflare-pages-branch: ${{ inputs.cloudflare-pages-branch || 'main' }}
+      branch-name: ${{ inputs.branch-name }}
+      commit-message: ${{ inputs.commit-message }}
+      cloudflare-pages-project: ${{ inputs.cloudflare-pages-project }}
+      cloudflare-pages-branch: ${{ inputs.cloudflare-pages-branch }}
       cloudflare-pages-directory: public
       base-url: ""
       release-prefix: site
