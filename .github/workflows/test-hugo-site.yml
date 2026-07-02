@@ -69,38 +69,10 @@ permissions:
   id-token: write
 
 jobs:
-  prepare-targets:
+  build:
     runs-on: ubuntu-latest
     outputs:
-      matrix: ${{ steps.out.outputs.matrix }}
-    steps:
-      - id: out
-        shell: bash
-        run: |
-          set -Eeuo pipefail
-          targets=()
-
-          [[ "${{ inputs.deploy-branch }}" == "true" ]] && targets+=("branch")
-          [[ "${{ inputs.deploy-github-pages }}" == "true" ]] && targets+=("github-pages")
-          [[ "${{ inputs.deploy-cloudflare-pages }}" == "true" ]] && targets+=("cloudflare-pages")
-
-          if [[ ${#targets[@]} -eq 0 ]]; then
-            echo 'matrix={"include":[]}' >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          json='{"include":['
-          for i in "${!targets[@]}"; do
-            [[ $i -gt 0 ]] && json+=','
-            json+='{"target":"'"${targets[$i]}"'"}'
-          done
-          json+=']}'
-
-          echo "matrix=${json}" >> "$GITHUB_OUTPUT"
-
-  build:
-    needs: prepare-targets
-    runs-on: ubuntu-latest
+      artifact-name: ${{ steps.meta.outputs.artifact-name }}
     steps:
       - uses: actions/checkout@v7
 
@@ -124,38 +96,45 @@ jobs:
           archive-output-dir: dist
           archive-format: both
 
-  deploy:
-    needs: [prepare-targets, build]
-    if: ${{ needs.prepare-targets.outputs.matrix != '{"include":[]}' }}
-    strategy:
-      fail-fast: false
-      matrix: ${{ fromJSON(needs.prepare-targets.outputs.matrix) }}
-    uses: redjax/pipelinetemplates/.github/workflows/hugo-site.yml@feat/hugo-site-pipeline-implementation
+      - name: Export artifact name
+        id: meta
+        shell: bash
+        run: echo "artifact-name=hugo-site" >> "$GITHUB_OUTPUT"
+
+  publish-branch:
+    needs: build
+    if: ${{ inputs.deploy-branch == true }}
+    uses: redjax/pipelinetemplates/.github/workflows/hugo-publish.yml@feat/hugo-site-pipeline-implementation
     with:
-      source-dir: apps/hugo-site
-      public-dir: public
-      build-flags: --gc --minify
-      hugo-version: "0.161.1"
-      extended: true
-      use-cache: true
-      artifact-name: hugo-site
-      archive-name: site
-      archive-output-dir: dist
-      archive-format: both
-      check-changed: false
-      changed-paths-mode: default
-      changed-paths: ""
-      deploy-target: ${{ matrix.target }}
-      versioning-mode: ${{ inputs.versioning-mode }}
-      version-file: .version
-      manual-version: ${{ inputs.manual-version }}
-      create-release: true
-      deploy-pages: true
+      target: branch
+      run-id: ${{ github.run_id }}
+      artifact-name: ${{ needs.build.outputs.artifact-name }}
       branch-name: ${{ inputs.branch-name }}
       commit-message: ${{ inputs.commit-message }}
+      dry-run: false
+    secrets: inherit
+
+  publish-github-pages:
+    needs: build
+    if: ${{ inputs.deploy-github-pages == true }}
+    uses: redjax/pipelinetemplates/.github/workflows/hugo-publish.yml@feat/hugo-site-pipeline-implementation
+    with:
+      target: github-pages
+      run-id: ${{ github.run_id }}
+      artifact-name: ${{ needs.build.outputs.artifact-name }}
+      dry-run: false
+    secrets: inherit
+
+  publish-cloudflare-pages:
+    needs: build
+    if: ${{ inputs.deploy-cloudflare-pages == true }}
+    uses: redjax/pipelinetemplates/.github/workflows/hugo-publish.yml@feat/hugo-site-pipeline-implementation
+    with:
+      target: cloudflare-pages
+      run-id: ${{ github.run_id }}
+      artifact-name: ${{ needs.build.outputs.artifact-name }}
       cloudflare-pages-project: ${{ inputs.cloudflare-pages-project }}
       cloudflare-pages-branch: ${{ inputs.cloudflare-pages-branch }}
       cloudflare-pages-directory: public
-      base-url: ""
-      release-prefix: site
+      dry-run: false
     secrets: inherit
