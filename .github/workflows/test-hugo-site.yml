@@ -1,4 +1,3 @@
----
 name: test-hugo-site
 
 on:
@@ -69,42 +68,8 @@ permissions:
   id-token: write
 
 jobs:
-  prepare-targets:
-    runs-on: ubuntu-latest
-    outputs:
-      matrix: ${{ steps.out.outputs.matrix }}
-    steps:
-      - id: out
-        shell: bash
-        run: |
-          set -Eeuo pipefail
-
-          ## Convert the selected checkbox inputs into a JSON matrix for the deploy job.
-          targets=()
-          [[ "${{ inputs.deploy-branch }}" == "true" ]] && targets+=("branch")
-          [[ "${{ inputs.deploy-github-pages }}" == "true" ]] && targets+=("github-pages")
-          [[ "${{ inputs.deploy-cloudflare-pages }}" == "true" ]] && targets+=("cloudflare-pages")
-
-          if [[ ${#targets[@]} -eq 0 ]]; then
-            echo 'matrix={"include":[]}' >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          json='{"include":['
-          for i in "${!targets[@]}"; do
-            [[ $i -gt 0 ]] && json+=','
-            json+='{"target":"'"${targets[$i]}"'"}'
-          done
-          json+=']}'
-
-          echo "matrix=${json}" >> "$GITHUB_OUTPUT"
-
-  site:
-    needs: prepare-targets
-    if: ${{ needs.prepare-targets.outputs.matrix != '{"include":[]}' }}
-    strategy:
-      fail-fast: false
-      matrix: ${{ fromJSON(needs.prepare-targets.outputs.matrix) }}
+  branch:
+    if: ${{ inputs.deploy-branch }}
     uses: redjax/pipelinetemplates/.github/workflows/hugo-site.yml@feat/hugo-site-pipeline-implementation
     with:
       source-dir: apps/hugo-site
@@ -120,7 +85,7 @@ jobs:
       check-changed: false
       changed-paths-mode: default
       changed-paths: ""
-      deploy-target: ${{ matrix.target }}
+      deploy-target: branch
       versioning-mode: ${{ inputs.versioning-mode }}
       version-file: .version
       manual-version: ${{ inputs.manual-version }}
@@ -131,6 +96,76 @@ jobs:
       cloudflare-pages-project: ${{ inputs.cloudflare-pages-project }}
       cloudflare-pages-branch: ${{ inputs.cloudflare-pages-branch }}
       cloudflare-pages-directory: public
+      cloudflare-api-token-secret-name: ""
+      cloudflare-account-id-secret-name: ""
+      base-url: ""
+      release-prefix: site
+    secrets: inherit
+
+  github-pages:
+    if: ${{ inputs.deploy-github-pages }}
+    uses: redjax/pipelinetemplates/.github/workflows/hugo-site.yml@feat/hugo-site-pipeline-implementation
+    with:
+      source-dir: apps/hugo-site
+      public-dir: public
+      build-flags: --gc --minify
+      hugo-version: "0.161.1"
+      extended: true
+      use-cache: true
+      artifact-name: hugo-site
+      archive-name: site
+      archive-output-dir: dist
+      archive-format: both
+      check-changed: false
+      changed-paths-mode: default
+      changed-paths: ""
+      deploy-target: github-pages
+      versioning-mode: ${{ inputs.versioning-mode }}
+      version-file: .version
+      manual-version: ${{ inputs.manual-version }}
+      create-release: true
+      deploy-pages: true
+      branch-name: ${{ inputs.branch-name }}
+      commit-message: ${{ inputs.commit-message }}
+      cloudflare-pages-project: ${{ inputs.cloudflare-pages-project }}
+      cloudflare-pages-branch: ${{ inputs.cloudflare-pages-branch }}
+      cloudflare-pages-directory: public
+      cloudflare-api-token-secret-name: ""
+      cloudflare-account-id-secret-name: ""
+      base-url: ""
+      release-prefix: site
+    secrets: inherit
+
+  cloudflare-pages:
+    if: ${{ inputs.deploy-cloudflare-pages }}
+    uses: redjax/pipelinetemplates/.github/workflows/hugo-site.yml@feat/hugo-site-pipeline-implementation
+    with:
+      source-dir: apps/hugo-site
+      public-dir: public
+      build-flags: --gc --minify
+      hugo-version: "0.161.1"
+      extended: true
+      use-cache: true
+      artifact-name: hugo-site
+      archive-name: site
+      archive-output-dir: dist
+      archive-format: both
+      check-changed: false
+      changed-paths-mode: default
+      changed-paths: ""
+      deploy-target: cloudflare-pages
+      versioning-mode: ${{ inputs.versioning-mode }}
+      version-file: .version
+      manual-version: ${{ inputs.manual-version }}
+      create-release: true
+      deploy-pages: true
+      branch-name: ${{ inputs.branch-name }}
+      commit-message: ${{ inputs.commit-message }}
+      cloudflare-pages-project: ${{ inputs.cloudflare-pages-project }}
+      cloudflare-pages-branch: ${{ inputs.cloudflare-pages-branch }}
+      cloudflare-pages-directory: public
+      cloudflare-api-token-secret-name: CLOUDFLARE_API_TOKEN
+      cloudflare-account-id-secret-name: CLOUDFLARE_ACCOUNT_ID
       base-url: ""
       release-prefix: site
     secrets: inherit
