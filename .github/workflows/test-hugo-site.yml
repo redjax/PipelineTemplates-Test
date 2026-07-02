@@ -1,3 +1,4 @@
+---
 name: test-hugo-site
 
 on:
@@ -40,7 +41,7 @@ on:
         default: pipelinetemplatest-test-hugo
 
       cloudflare-pages-branch:
-        description: "Cloudflare branch name."
+        description: "Cloudflare production branch."
         required: false
         type: string
         default: main
@@ -97,17 +98,12 @@ jobs:
 
           echo "matrix=${json}" >> "$GITHUB_OUTPUT"
 
-  meta:
+  build:
     needs: prepare-targets
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Preparing deployment metadata"
-
-  build:
-    needs: meta
-    runs-on: ubuntu-latest
-    steps:
       - uses: actions/checkout@v7
+
       - name: Build site
         uses: redjax/pipelinetemplates/.github/actions/hugo-build@main
         with:
@@ -129,7 +125,7 @@ jobs:
           archive-format: both
 
   deploy:
-    needs: [prepare-targets, meta, build]
+    needs: [prepare-targets, build]
     if: ${{ needs.prepare-targets.outputs.matrix != '{"include":[]}' }}
     strategy:
       fail-fast: false
