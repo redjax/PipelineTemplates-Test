@@ -1,5 +1,5 @@
 ---
-name: test-hugo-site
+name: Test Hugo Site (build & release)
 
 on:
   workflow_dispatch:
