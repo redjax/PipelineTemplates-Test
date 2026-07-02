@@ -1,5 +1,4 @@
----
-name: test-hugo-site
+name: Test Hugo Site (build & release)
 
 on:
   workflow_dispatch:
@@ -18,6 +17,12 @@ on:
 
       deploy-cloudflare-pages:
         description: "Deploy to Cloudflare Pages"
+        required: false
+        type: boolean
+        default: false
+
+      deploy-github-release:
+        description: "Create GitHub Release"
         required: false
         type: boolean
         default: false
@@ -41,7 +46,7 @@ on:
         default: pipelinetemplatest-test-hugo
 
       cloudflare-pages-branch:
-        description: "Cloudflare branch name."
+        description: "Cloudflare production branch."
         required: false
         type: string
         default: main
@@ -69,68 +74,120 @@ permissions:
   id-token: write
 
 jobs:
-  prepare-targets:
+  build:
     runs-on: ubuntu-latest
     outputs:
-      matrix: ${{ steps.out.outputs.matrix }}
+      artifact-name: ${{ steps.meta.outputs.artifact-name }}
+      release-version: ${{ steps.meta.outputs.release-version }}
+      release-name: ${{ steps.meta.outputs.release-name }}
+      release-tag: ${{ steps.meta.outputs.release-tag }}
     steps:
-      - id: out
+      - uses: actions/checkout@v7
+
+      - name: Build site
+        uses: redjax/pipelinetemplates/.github/actions/hugo-build@main
+        with:
+          hugo-version: "0.161.1"
+          extended: true
+          source-dir: apps/hugo-site
+          public-dir: public
+          base-url: ""
+          build-flags: --gc --minify
+          use-cache: true
+          cache-key-suffix: ${{ github.repository }}
+          check-changed: false
+          changed-paths-mode: default
+          changed-paths: ""
+          publish-artifact: "true"
+          artifact-name: hugo-site
+          archive-name: site
+          archive-output-dir: dist
+          archive-format: both
+
+      - name: Compute release metadata
+        id: meta
         shell: bash
+        env:
+          VERSIONING_MODE: ${{ inputs.versioning-mode }}
+          MANUAL_VERSION: ${{ inputs.manual-version }}
+          GITHUB_SHA: ${{ github.sha }}
         run: |
           set -Eeuo pipefail
+          version=""
+          tag=""
+          name=""
 
-          ## Convert the selected checkbox inputs into a JSON matrix for the deploy job.
-          targets=()
-          [[ "${{ inputs.deploy-branch }}" == "true" ]] && targets+=("branch")
-          [[ "${{ inputs.deploy-github-pages }}" == "true" ]] && targets+=("github-pages")
-          [[ "${{ inputs.deploy-cloudflare-pages }}" == "true" ]] && targets+=("cloudflare-pages")
+          case "${VERSIONING_MODE}" in
+            none)
+              ;;
+            manual)
+              if [[ -n "${MANUAL_VERSION}" ]]; then
+                version="${MANUAL_VERSION#v}"
+                version="${version#hugo/}"
+                tag="site-v${version}"
+                name="Site v${version}"
+              else
+                version="${GITHUB_SHA::7}"
+                tag="site-${version}"
+                name="site-${version}"
+              fi
+              ;;
+            auto)
+              version="${GITHUB_SHA::7}"
+              tag="site-${version}"
+              name="site-${version}"
+              ;;
+          esac
 
-          if [[ ${#targets[@]} -eq 0 ]]; then
-            echo 'matrix={"include":[]}' >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
+          echo "artifact-name=hugo-site" >> "$GITHUB_OUTPUT"
+          echo "release-version=${version}" >> "$GITHUB_OUTPUT"
+          echo "release-name=${name}" >> "$GITHUB_OUTPUT"
+          echo "release-tag=${tag}" >> "$GITHUB_OUTPUT"
 
-          json='{"include":['
-          for i in "${!targets[@]}"; do
-            [[ $i -gt 0 ]] && json+=','
-            json+='{"target":"'"${targets[$i]}"'"}'
-          done
-          json+=']}'
-
-          echo "matrix=${json}" >> "$GITHUB_OUTPUT"
-
-  site:
-    needs: prepare-targets
-    if: ${{ needs.prepare-targets.outputs.matrix != '{"include":[]}' }}
-    strategy:
-      fail-fast: false
-      matrix: ${{ fromJSON(needs.prepare-targets.outputs.matrix) }}
-    uses: redjax/pipelinetemplates/.github/workflows/hugo-site.yml@feat/hugo-site-pipeline-implementation
+  publish-branch:
+    needs: build
+    if: ${{ inputs.deploy-branch == true }}
+    uses: redjax/pipelinetemplates/.github/workflows/hugo-publish-branch.yml@feat/hugo-site-pipeline-implementation
     with:
-      source-dir: apps/hugo-site
-      public-dir: public
-      build-flags: --gc --minify
-      hugo-version: "0.161.1"
-      extended: true
-      use-cache: true
-      artifact-name: hugo-site
-      archive-name: site
-      archive-output-dir: dist
-      archive-format: both
-      check-changed: false
-      changed-paths-mode: default
-      changed-paths: ""
-      deploy-target: ${{ matrix.target }}
-      versioning-mode: ${{ inputs.versioning-mode }}
-      version-file: .version
-      manual-version: ${{ inputs.manual-version }}
-      create-release: true
-      deploy-pages: true
+      run-id: ${{ github.run_id }}
+      artifact-name: ${{ needs.build.outputs.artifact-name }}
       branch-name: ${{ inputs.branch-name }}
       commit-message: ${{ inputs.commit-message }}
+      dry-run: false
+    secrets: inherit
+
+  publish-github-pages:
+    needs: build
+    if: ${{ inputs.deploy-github-pages == true }}
+    uses: redjax/pipelinetemplates/.github/workflows/hugo-publish-github-pages.yml@feat/hugo-site-pipeline-implementation
+    with:
+      run-id: ${{ github.run_id }}
+      artifact-name: ${{ needs.build.outputs.artifact-name }}
+      dry-run: false
+    secrets: inherit
+
+  publish-cloudflare-pages:
+    needs: build
+    if: ${{ inputs.deploy-cloudflare-pages == true }}
+    uses: redjax/pipelinetemplates/.github/workflows/hugo-publish-cloudflare-pages.yml@feat/hugo-site-pipeline-implementation
+    with:
+      run-id: ${{ github.run_id }}
+      artifact-name: ${{ needs.build.outputs.artifact-name }}
       cloudflare-pages-project: ${{ inputs.cloudflare-pages-project }}
       cloudflare-pages-branch: ${{ inputs.cloudflare-pages-branch }}
       cloudflare-pages-directory: public
-      base-url: ""
-      release-prefix: site
+      dry-run: false
+    secrets: inherit
+
+  publish-github-release:
+    needs: build
+    if: ${{ inputs.deploy-github-release == true }}
+    uses: redjax/pipelinetemplates/.github/workflows/hugo-publish-github-release.yml@feat/hugo-site-pipeline-implementation
+    with:
+      run-id: ${{ github.run_id }}
+      artifact-name: ${{ needs.build.outputs.artifact-name }}
+      release-name: ${{ needs.build.outputs.release-name }}
+      release-version: ${{ needs.build.outputs.release-version }}
+      release-tag: ${{ needs.build.outputs.release-tag }}
+      dry-run: false
     secrets: inherit
