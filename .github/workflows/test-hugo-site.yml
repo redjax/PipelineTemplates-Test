@@ -1,13 +1,24 @@
+---
 name: Test Hugo Site (build & release)
 
 on:
   workflow_dispatch:
     inputs:
+      release-mode:
+        description: "none, unversioned, or versioned"
+        required: true
+        type: choice
+        options:
+          - none
+          - unversioned
+          - versioned
+        default: none
+
       deploy-branch:
         description: "Deploy to branch"
         required: false
         type: boolean
-        default: true
+        default: false
 
       deploy-github-pages:
         description: "Deploy to GitHub Pages"
@@ -51,15 +62,17 @@ on:
         type: string
         default: main
 
-      versioning-mode:
-        description: "Versioning mode for releases."
+      source-dir:
+        description: "Path to the Hugo project root."
         required: false
-        type: choice
-        options:
-          - none
-          - auto
-          - manual
-        default: none
+        type: string
+        default: apps/hugo-site
+
+      version-file:
+        description: "Path to the version file."
+        required: false
+        type: string
+        default: apps/hugo-site/.version
 
       manual-version:
         description: "Explicit version for manual release runs."
@@ -68,126 +81,56 @@ on:
         default: ""
 
 permissions:
-  actions: write
+  actions: read
   contents: write
   pages: write
   id-token: write
+  pull-requests: write
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    outputs:
-      artifact-name: ${{ steps.meta.outputs.artifact-name }}
-      release-version: ${{ steps.meta.outputs.release-version }}
-      release-name: ${{ steps.meta.outputs.release-name }}
-      release-tag: ${{ steps.meta.outputs.release-tag }}
-    steps:
-      - uses: actions/checkout@v7
-
-      - name: Build site
-        uses: redjax/pipelinetemplates/.github/actions/hugo-build@main
-        with:
-          hugo-version: "0.161.1"
-          extended: true
-          source-dir: apps/hugo-site
-          public-dir: public
-          base-url: ""
-          build-flags: --gc --minify
-          use-cache: true
-          cache-key-suffix: ${{ github.repository }}
-          check-changed: false
-          changed-paths-mode: default
-          changed-paths: ""
-          publish-artifact: "true"
-          artifact-name: hugo-site
-          archive-name: site
-          archive-output-dir: dist
-          archive-format: both
-
-      - name: Compute release metadata
-        id: meta
-        shell: bash
-        env:
-          VERSIONING_MODE: ${{ inputs.versioning-mode }}
-          MANUAL_VERSION: ${{ inputs.manual-version }}
-          GITHUB_SHA: ${{ github.sha }}
-        run: |
-          set -Eeuo pipefail
-          version=""
-          tag=""
-          name=""
-
-          case "${VERSIONING_MODE}" in
-            none)
-              ;;
-            manual)
-              if [[ -n "${MANUAL_VERSION}" ]]; then
-                version="${MANUAL_VERSION#v}"
-                version="${version#hugo/}"
-                tag="site-v${version}"
-                name="Site v${version}"
-              else
-                version="${GITHUB_SHA::7}"
-                tag="site-${version}"
-                name="site-${version}"
-              fi
-              ;;
-            auto)
-              version="${GITHUB_SHA::7}"
-              tag="site-${version}"
-              name="site-${version}"
-              ;;
-          esac
-
-          echo "artifact-name=hugo-site" >> "$GITHUB_OUTPUT"
-          echo "release-version=${version}" >> "$GITHUB_OUTPUT"
-          echo "release-name=${name}" >> "$GITHUB_OUTPUT"
-          echo "release-tag=${tag}" >> "$GITHUB_OUTPUT"
-
-  publish-branch:
-    needs: build
-    if: ${{ inputs.deploy-branch == true }}
-    uses: redjax/pipelinetemplates/.github/workflows/hugo-publish-branch.yml@feat/hugo-site-pipeline-implementation
+  version-bump:
+    if: ${{ inputs.release-mode == 'versioned' }}
+    uses: ./.github/workflows/hugo-version-bump.yml
     with:
-      run-id: ${{ github.run_id }}
-      artifact-name: ${{ needs.build.outputs.artifact-name }}
+      source-dir: ${{ inputs.source-dir }}
+      version-file: ${{ inputs.version-file }}
+      bumpversion-file: ${{ inputs.source-dir }}/.bumpversion.toml
+      force: false
+      bump-command: bump-my-version bump patch
+    secrets: inherit
+
+  build-and-release:
+    needs: [version-bump]
+    if: ${{ inputs.release-mode != 'versioned' || always() }}
+    uses: redjax/pipelinetemplates/.github/workflows/hugo-site.yml@feat/hugo-site-pipeline-implementation
+    with:
+      source-dir: ${{ inputs.source-dir }}
+      public-dir: public
+      build-flags: --gc --minify --enableGitInfo
+      hugo-version: 0.161.1
+      extended: true
+      use-cache: true
+      artifact-name: hugo-site
+      archive-name: site
+      archive-output-dir: dist
+      archive-format: both
+      check-changed: false
+      changed-paths-mode: default
+      changed-paths: ""
+      release-mode: ${{ inputs.release-mode }}
+      deploy-branch: ${{ inputs.deploy-branch }}
+      deploy-github-pages: ${{ inputs.deploy-github-pages }}
+      deploy-cloudflare-pages: ${{ inputs.deploy-cloudflare-pages }}
+      deploy-github-release: ${{ inputs.deploy-github-release }}
+      versioning-mode: ${{ inputs.release-mode == 'versioned' && 'auto' || 'none' }}
+      version-file: ${{ inputs.version-file }}
+      manual-version: ${{ inputs.manual-version }}
+      create-release: true
       branch-name: ${{ inputs.branch-name }}
       commit-message: ${{ inputs.commit-message }}
-      dry-run: false
-    secrets: inherit
-
-  publish-github-pages:
-    needs: build
-    if: ${{ inputs.deploy-github-pages == true }}
-    uses: redjax/pipelinetemplates/.github/workflows/hugo-publish-github-pages.yml@feat/hugo-site-pipeline-implementation
-    with:
-      run-id: ${{ github.run_id }}
-      artifact-name: ${{ needs.build.outputs.artifact-name }}
-      dry-run: false
-    secrets: inherit
-
-  publish-cloudflare-pages:
-    needs: build
-    if: ${{ inputs.deploy-cloudflare-pages == true }}
-    uses: redjax/pipelinetemplates/.github/workflows/hugo-publish-cloudflare-pages.yml@feat/hugo-site-pipeline-implementation
-    with:
-      run-id: ${{ github.run_id }}
-      artifact-name: ${{ needs.build.outputs.artifact-name }}
       cloudflare-pages-project: ${{ inputs.cloudflare-pages-project }}
       cloudflare-pages-branch: ${{ inputs.cloudflare-pages-branch }}
       cloudflare-pages-directory: public
-      dry-run: false
-    secrets: inherit
-
-  publish-github-release:
-    needs: build
-    if: ${{ inputs.deploy-github-release == true }}
-    uses: redjax/pipelinetemplates/.github/workflows/hugo-publish-github-release.yml@feat/hugo-site-pipeline-implementation
-    with:
-      run-id: ${{ github.run_id }}
-      artifact-name: ${{ needs.build.outputs.artifact-name }}
-      release-name: ${{ needs.build.outputs.release-name }}
-      release-version: ${{ needs.build.outputs.release-version }}
-      release-tag: ${{ needs.build.outputs.release-tag }}
-      dry-run: false
+      base-url: ""
+      release-prefix: site
     secrets: inherit
