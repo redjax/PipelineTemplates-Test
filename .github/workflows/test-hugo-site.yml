@@ -102,7 +102,7 @@ jobs:
   build-and-release:
     needs: [version-bump]
     if: ${{ inputs.release-mode != 'versioned' || always() }}
-    uses: redjax/pipelinetemplates/.github/workflows/hugo-site.yml@feat/hugo-site-pipeline-implementation
+    uses: redjax/pipelinetemplates/.github/workflows/hugo-site.yml@feat/versioned-hugo-release
     with:
       source-dir: ${{ inputs.source-dir }}
       public-dir: public
