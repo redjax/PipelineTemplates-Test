@@ -38,16 +38,29 @@ on:
         type: string
         default: main
 
-      cloudflare-pages-directory:
-        description: "Directory to deploy to Cloudflare Pages."
+      versioning-mode:
+        description: "Versioning mode for releases."
+        required: false
+        type: choice
+        options:
+          - none
+          - auto
+          - manual
+        default: none
+
+      manual-version:
+        description: "Explicit version for manual release runs."
         required: false
         type: string
-        default: public
+        default: ""
 
   push:
+    branches:
+      - main
     paths:
       - "apps/hugo-site/**"
       - ".github/workflows/test-hugo-site.yml"
+      - ".github/workflows/hugo-version-bump.yml"
 
 jobs:
   site:
@@ -67,13 +80,16 @@ jobs:
       changed-paths-mode: default
       changed-paths: ""
       deploy-target: ${{ inputs.deploy-target || 'branch' }}
-      versioning-mode: none
-      create-release: false
+      versioning-mode: ${{ inputs.versioning-mode || 'none' }}
+      version-file: .version
+      manual-version: ${{ inputs.manual-version || '' }}
+      create-release: true
       deploy-pages: true
       branch-name: ${{ inputs.branch-name || 'gh-pages' }}
       commit-message: ${{ inputs.commit-message || 'Deploy Hugo site from test repo' }}
       cloudflare-pages-project: ${{ inputs.cloudflare-pages-project || 'pipelinetemplatest-test-hugo' }}
       cloudflare-pages-branch: ${{ inputs.cloudflare-pages-branch || 'main' }}
+      cloudflare-pages-directory: public
       base-url: ""
       release-prefix: site
     secrets: inherit
