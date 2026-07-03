@@ -80,6 +80,12 @@ on:
         type: string
         default: ""
 
+  pull_request:
+    branches:
+      - main
+    types:
+      - closed
+
 permissions:
   actions: write
   contents: write
@@ -88,19 +94,86 @@ permissions:
   pull-requests: write
 
 jobs:
-  version-bump:
-    if: ${{ inputs.release-mode == 'versioned' }}
+  detect-changes:
+    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.merged == true }}
+    runs-on: ubuntu-latest
+    outputs:
+      hugo_changed: ${{ steps.filter.outputs.hugo_changed }}
+    steps:
+      - name: Checkout PR head
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Check Hugo changes
+        id: filter
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+
+          base="${{ github.event.pull_request.base.sha }}"
+          head="${{ github.event.pull_request.head.sha }}"
+
+          git diff --name-only "${base}" "${head}" > /tmp/changed-files.txt || true
+
+          if grep -qE '^apps/hugo-site/.*' /tmp/changed-files.txt; then
+            echo "hugo_changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "hugo_changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  version-bump-pr:
+    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.merged == true && needs.detect-changes.outputs.hugo_changed == 'true' }}
+    needs: detect-changes
     uses: redjax/pipelinetemplates/.github/workflows/hugo-version-bump.yml@feat/versioned-hugo-release
     with:
-      source-dir: ${{ inputs.source-dir }}
-      version-file: ${{ inputs.version-file }}
-      bumpversion-file: ${{ inputs.source-dir }}/.bumpversion.toml
+      source-dir: apps/hugo-site
+      version-file: apps/hugo-site/.version
+      bumpversion-file: apps/hugo-site/.bumpversion.toml
       force: false
-      bump-command: bump-my-version bump patch
     secrets: inherit
 
-  build-unversioned:
-    if: ${{ inputs.release-mode != 'versioned' }}
+  build-and-release-pr:
+    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.merged == true && needs.detect-changes.outputs.hugo_changed == 'true' && needs.version-bump-pr.result == 'success' }}
+    needs:
+      - detect-changes
+      - version-bump-pr
+    uses: redjax/pipelinetemplates/.github/workflows/hugo-site.yml@feat/versioned-hugo-release
+    with:
+      source-dir: apps/hugo-site
+      public-dir: public
+      build-flags: --gc --minify --enableGitInfo
+      hugo-version: 0.161.1
+      extended: true
+      use-cache: true
+      artifact-name: hugo-site
+      archive-name: site
+      archive-output-dir: dist
+      archive-format: both
+      check-changed: false
+      changed-paths-mode: default
+      changed-paths: ""
+      release-mode: versioned
+      deploy-branch: false
+      deploy-github-pages: true
+      deploy-cloudflare-pages: true
+      deploy-github-release: true
+      versioning-mode: auto
+      version-file: apps/hugo-site/.version
+      manual-version: ""
+      create-release: true
+      branch-name: gh-pages
+      commit-message: Deploy Hugo site from test repo
+      cloudflare-pages-project: pipelinetemplatest-test-hugo
+      cloudflare-pages-branch: main
+      cloudflare-pages-directory: public
+      base-url: ""
+      release-prefix: site
+    secrets: inherit
+
+  build-and-release-manual:
+    if: ${{ github.event_name == 'workflow_dispatch' }}
     uses: redjax/pipelinetemplates/.github/workflows/hugo-site.yml@feat/versioned-hugo-release
     with:
       source-dir: ${{ inputs.source-dir }}
@@ -121,43 +194,7 @@ jobs:
       deploy-github-pages: ${{ inputs.deploy-github-pages }}
       deploy-cloudflare-pages: ${{ inputs.deploy-cloudflare-pages }}
       deploy-github-release: ${{ inputs.deploy-github-release }}
-      versioning-mode: none
-      version-file: ${{ inputs.version-file }}
-      manual-version: ${{ inputs.manual-version }}
-      create-release: true
-      branch-name: ${{ inputs.branch-name }}
-      commit-message: ${{ inputs.commit-message }}
-      cloudflare-pages-project: ${{ inputs.cloudflare-pages-project }}
-      cloudflare-pages-branch: ${{ inputs.cloudflare-pages-branch }}
-      cloudflare-pages-directory: public
-      base-url: ""
-      release-prefix: site
-    secrets: inherit
-
-  build-versioned:
-    needs: version-bump
-    if: ${{ inputs.release-mode == 'versioned' && needs.version-bump.result == 'success' }}
-    uses: redjax/pipelinetemplates/.github/workflows/hugo-site.yml@feat/versioned-hugo-release
-    with:
-      source-dir: ${{ inputs.source-dir }}
-      public-dir: public
-      build-flags: --gc --minify --enableGitInfo
-      hugo-version: 0.161.1
-      extended: true
-      use-cache: true
-      artifact-name: hugo-site
-      archive-name: site
-      archive-output-dir: dist
-      archive-format: both
-      check-changed: false
-      changed-paths-mode: default
-      changed-paths: ""
-      release-mode: versioned
-      deploy-branch: ${{ inputs.deploy-branch }}
-      deploy-github-pages: ${{ inputs.deploy-github-pages }}
-      deploy-cloudflare-pages: ${{ inputs.deploy-cloudflare-pages }}
-      deploy-github-release: ${{ inputs.deploy-github-release }}
-      versioning-mode: auto
+      versioning-mode: ${{ inputs.release-mode == 'versioned' && 'auto' || 'none' }}
       version-file: ${{ inputs.version-file }}
       manual-version: ${{ inputs.manual-version }}
       create-release: true
