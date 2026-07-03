@@ -2,83 +2,11 @@
 name: Test Hugo Site (build & release)
 
 on:
-  workflow_dispatch:
-    inputs:
-      release-mode:
-        description: "none, unversioned, or versioned"
-        required: true
-        type: choice
-        options:
-          - none
-          - unversioned
-          - versioned
-        default: none
-
-      deploy-branch:
-        description: "Deploy to branch"
-        required: false
-        type: boolean
-        default: false
-
-      deploy-github-pages:
-        description: "Deploy to GitHub Pages"
-        required: false
-        type: boolean
-        default: false
-
-      deploy-cloudflare-pages:
-        description: "Deploy to Cloudflare Pages"
-        required: false
-        type: boolean
-        default: false
-
-      deploy-github-release:
-        description: "Create GitHub Release"
-        required: false
-        type: boolean
-        default: false
-
-      branch-name:
-        description: "Target branch for branch deploys."
-        required: false
-        type: string
-        default: gh-pages
-
-      commit-message:
-        description: "Commit message for branch deploys."
-        required: false
-        type: string
-        default: Deploy Hugo site from test repo
-
-      cloudflare-pages-project:
-        description: "Cloudflare Pages project name."
-        required: false
-        type: string
-        default: pipelinetemplatest-test-hugo
-
-      cloudflare-pages-branch:
-        description: "Cloudflare production branch."
-        required: false
-        type: string
-        default: main
-
-      source-dir:
-        description: "Path to the Hugo project root."
-        required: false
-        type: string
-        default: apps/hugo-site
-
-      version-file:
-        description: "Path to the version file."
-        required: false
-        type: string
-        default: apps/hugo-site/.version
-
-      manual-version:
-        description: "Explicit version for manual release runs."
-        required: false
-        type: string
-        default: ""
+  pull_request:
+    branches:
+      - main
+    types:
+      - closed
 
 permissions:
   actions: write
@@ -88,58 +16,54 @@ permissions:
   pull-requests: write
 
 jobs:
+  detect-changes:
+    if: ${{ github.event.pull_request.merged == true }}
+    runs-on: ubuntu-latest
+    outputs:
+      hugo_changed: ${{ steps.filter.outputs.hugo_changed }}
+    steps:
+      - name: Checkout PR head
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Check Hugo changes
+        id: filter
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+
+          base="${{ github.event.pull_request.base.sha }}"
+          head="${{ github.event.pull_request.head.sha }}"
+
+          git diff --name-only "${base}" "${head}" > /tmp/changed-files.txt || true
+
+          if grep -qE '^apps/hugo-site/.*' /tmp/changed-files.txt; then
+            echo "hugo_changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "hugo_changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
   version-bump:
-    if: ${{ inputs.release-mode == 'versioned' }}
+    needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.hugo_changed == 'true' }}
     uses: redjax/pipelinetemplates/.github/workflows/hugo-version-bump.yml@feat/versioned-hugo-release
     with:
-      source-dir: ${{ inputs.source-dir }}
-      version-file: ${{ inputs.version-file }}
-      bumpversion-file: ${{ inputs.source-dir }}/.bumpversion.toml
+      source-dir: apps/hugo-site
+      version-file: apps/hugo-site/.version
+      bumpversion-file: apps/hugo-site/.bumpversion.toml
       force: false
-      bump-command: bump-my-version bump patch
     secrets: inherit
 
-  build-unversioned:
-    if: ${{ inputs.release-mode != 'versioned' }}
+  build-and-release:
+    needs:
+      - detect-changes
+      - version-bump
+    if: ${{ needs.detect-changes.outputs.hugo_changed == 'true' && needs.version-bump.result == 'success' }}
     uses: redjax/pipelinetemplates/.github/workflows/hugo-site.yml@feat/versioned-hugo-release
     with:
-      source-dir: ${{ inputs.source-dir }}
-      public-dir: public
-      build-flags: --gc --minify --enableGitInfo
-      hugo-version: 0.161.1
-      extended: true
-      use-cache: true
-      artifact-name: hugo-site
-      archive-name: site
-      archive-output-dir: dist
-      archive-format: both
-      check-changed: false
-      changed-paths-mode: default
-      changed-paths: ""
-      release-mode: ${{ inputs.release-mode }}
-      deploy-branch: ${{ inputs.deploy-branch }}
-      deploy-github-pages: ${{ inputs.deploy-github-pages }}
-      deploy-cloudflare-pages: ${{ inputs.deploy-cloudflare-pages }}
-      deploy-github-release: ${{ inputs.deploy-github-release }}
-      versioning-mode: none
-      version-file: ${{ inputs.version-file }}
-      manual-version: ${{ inputs.manual-version }}
-      create-release: true
-      branch-name: ${{ inputs.branch-name }}
-      commit-message: ${{ inputs.commit-message }}
-      cloudflare-pages-project: ${{ inputs.cloudflare-pages-project }}
-      cloudflare-pages-branch: ${{ inputs.cloudflare-pages-branch }}
-      cloudflare-pages-directory: public
-      base-url: ""
-      release-prefix: site
-    secrets: inherit
-
-  build-versioned:
-    needs: version-bump
-    if: ${{ inputs.release-mode == 'versioned' && needs.version-bump.result == 'success' }}
-    uses: redjax/pipelinetemplates/.github/workflows/hugo-site.yml@feat/versioned-hugo-release
-    with:
-      source-dir: ${{ inputs.source-dir }}
+      source-dir: apps/hugo-site
       public-dir: public
       build-flags: --gc --minify --enableGitInfo
       hugo-version: 0.161.1
@@ -153,18 +77,18 @@ jobs:
       changed-paths-mode: default
       changed-paths: ""
       release-mode: versioned
-      deploy-branch: ${{ inputs.deploy-branch }}
-      deploy-github-pages: ${{ inputs.deploy-github-pages }}
-      deploy-cloudflare-pages: ${{ inputs.deploy-cloudflare-pages }}
-      deploy-github-release: ${{ inputs.deploy-github-release }}
+      deploy-branch: false
+      deploy-github-pages: true
+      deploy-cloudflare-pages: true
+      deploy-github-release: true
       versioning-mode: auto
-      version-file: ${{ inputs.version-file }}
-      manual-version: ${{ inputs.manual-version }}
+      version-file: apps/hugo-site/.version
+      manual-version: ""
       create-release: true
-      branch-name: ${{ inputs.branch-name }}
-      commit-message: ${{ inputs.commit-message }}
-      cloudflare-pages-project: ${{ inputs.cloudflare-pages-project }}
-      cloudflare-pages-branch: ${{ inputs.cloudflare-pages-branch }}
+      branch-name: gh-pages
+      commit-message: Deploy Hugo site from test repo
+      cloudflare-pages-project: pipelinetemplatest-test-hugo
+      cloudflare-pages-branch: main
       cloudflare-pages-directory: public
       base-url: ""
       release-prefix: site
