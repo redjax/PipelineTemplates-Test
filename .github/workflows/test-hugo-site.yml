@@ -99,9 +99,8 @@ jobs:
       bump-command: bump-my-version bump patch
     secrets: inherit
 
-  build-and-release:
-    needs: [version-bump]
-    if: ${{ inputs.release-mode != 'versioned' || always() }}
+  build-unversioned:
+    if: ${{ inputs.release-mode != 'versioned' }}
     uses: redjax/pipelinetemplates/.github/workflows/hugo-site.yml@feat/versioned-hugo-release
     with:
       source-dir: ${{ inputs.source-dir }}
@@ -122,7 +121,43 @@ jobs:
       deploy-github-pages: ${{ inputs.deploy-github-pages }}
       deploy-cloudflare-pages: ${{ inputs.deploy-cloudflare-pages }}
       deploy-github-release: ${{ inputs.deploy-github-release }}
-      versioning-mode: ${{ inputs.release-mode == 'versioned' && 'auto' || 'none' }}
+      versioning-mode: none
+      version-file: ${{ inputs.version-file }}
+      manual-version: ${{ inputs.manual-version }}
+      create-release: true
+      branch-name: ${{ inputs.branch-name }}
+      commit-message: ${{ inputs.commit-message }}
+      cloudflare-pages-project: ${{ inputs.cloudflare-pages-project }}
+      cloudflare-pages-branch: ${{ inputs.cloudflare-pages-branch }}
+      cloudflare-pages-directory: public
+      base-url: ""
+      release-prefix: site
+    secrets: inherit
+
+  build-versioned:
+    needs: version-bump
+    if: ${{ inputs.release-mode == 'versioned' && needs.version-bump.result == 'success' }}
+    uses: redjax/pipelinetemplates/.github/workflows/hugo-site.yml@feat/versioned-hugo-release
+    with:
+      source-dir: ${{ inputs.source-dir }}
+      public-dir: public
+      build-flags: --gc --minify --enableGitInfo
+      hugo-version: 0.161.1
+      extended: true
+      use-cache: true
+      artifact-name: hugo-site
+      archive-name: site
+      archive-output-dir: dist
+      archive-format: both
+      check-changed: false
+      changed-paths-mode: default
+      changed-paths: ""
+      release-mode: versioned
+      deploy-branch: ${{ inputs.deploy-branch }}
+      deploy-github-pages: ${{ inputs.deploy-github-pages }}
+      deploy-cloudflare-pages: ${{ inputs.deploy-cloudflare-pages }}
+      deploy-github-release: ${{ inputs.deploy-github-release }}
+      versioning-mode: auto
       version-file: ${{ inputs.version-file }}
       manual-version: ${{ inputs.manual-version }}
       create-release: true
