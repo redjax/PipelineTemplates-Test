@@ -2,6 +2,84 @@
 name: Test Hugo Site (build & release)
 
 on:
+  workflow_dispatch:
+    inputs:
+      release-mode:
+        description: "none, unversioned, or versioned"
+        required: true
+        type: choice
+        options:
+          - none
+          - unversioned
+          - versioned
+        default: none
+
+      deploy-branch:
+        description: "Deploy to branch"
+        required: false
+        type: boolean
+        default: false
+
+      deploy-github-pages:
+        description: "Deploy to GitHub Pages"
+        required: false
+        type: boolean
+        default: false
+
+      deploy-cloudflare-pages:
+        description: "Deploy to Cloudflare Pages"
+        required: false
+        type: boolean
+        default: false
+
+      deploy-github-release:
+        description: "Create GitHub Release"
+        required: false
+        type: boolean
+        default: false
+
+      branch-name:
+        description: "Target branch for branch deploys."
+        required: false
+        type: string
+        default: gh-pages
+
+      commit-message:
+        description: "Commit message for branch deploys."
+        required: false
+        type: string
+        default: Deploy Hugo site from test repo
+
+      cloudflare-pages-project:
+        description: "Cloudflare Pages project name."
+        required: false
+        type: string
+        default: pipelinetemplatest-test-hugo
+
+      cloudflare-pages-branch:
+        description: "Cloudflare production branch."
+        required: false
+        type: string
+        default: main
+
+      source-dir:
+        description: "Path to the Hugo project root."
+        required: false
+        type: string
+        default: apps/hugo-site
+
+      version-file:
+        description: "Path to the version file."
+        required: false
+        type: string
+        default: apps/hugo-site/.version
+
+      manual-version:
+        description: "Explicit version for manual release runs."
+        required: false
+        type: string
+        default: ""
+
   pull_request:
     branches:
       - main
