@@ -95,7 +95,7 @@ permissions:
 
 jobs:
   detect-changes:
-    if: ${{ github.event.pull_request.merged == true }}
+    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.merged == true }}
     runs-on: ubuntu-latest
     outputs:
       hugo_changed: ${{ steps.filter.outputs.hugo_changed }}
@@ -123,9 +123,9 @@ jobs:
             echo "hugo_changed=false" >> "$GITHUB_OUTPUT"
           fi
 
-  version-bump:
+  version-bump-pr:
+    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.merged == true && needs.detect-changes.outputs.hugo_changed == 'true' }}
     needs: detect-changes
-    if: ${{ needs.detect-changes.outputs.hugo_changed == 'true' }}
     uses: redjax/pipelinetemplates/.github/workflows/hugo-version-bump.yml@feat/versioned-hugo-release
     with:
       source-dir: apps/hugo-site
@@ -134,11 +134,11 @@ jobs:
       force: false
     secrets: inherit
 
-  build-and-release:
+  build-and-release-pr:
+    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.merged == true && needs.detect-changes.outputs.hugo_changed == 'true' && needs.version-bump-pr.result == 'success' }}
     needs:
       - detect-changes
-      - version-bump
-    if: ${{ needs.detect-changes.outputs.hugo_changed == 'true' && needs.version-bump.result == 'success' }}
+      - version-bump-pr
     uses: redjax/pipelinetemplates/.github/workflows/hugo-site.yml@feat/versioned-hugo-release
     with:
       source-dir: apps/hugo-site
@@ -167,6 +167,41 @@ jobs:
       commit-message: Deploy Hugo site from test repo
       cloudflare-pages-project: pipelinetemplatest-test-hugo
       cloudflare-pages-branch: main
+      cloudflare-pages-directory: public
+      base-url: ""
+      release-prefix: site
+    secrets: inherit
+
+  build-and-release-manual:
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    uses: redjax/pipelinetemplates/.github/workflows/hugo-site.yml@feat/versioned-hugo-release
+    with:
+      source-dir: ${{ inputs.source-dir }}
+      public-dir: public
+      build-flags: --gc --minify --enableGitInfo
+      hugo-version: 0.161.1
+      extended: true
+      use-cache: true
+      artifact-name: hugo-site
+      archive-name: site
+      archive-output-dir: dist
+      archive-format: both
+      check-changed: false
+      changed-paths-mode: default
+      changed-paths: ""
+      release-mode: ${{ inputs.release-mode }}
+      deploy-branch: ${{ inputs.deploy-branch }}
+      deploy-github-pages: ${{ inputs.deploy-github-pages }}
+      deploy-cloudflare-pages: ${{ inputs.deploy-cloudflare-pages }}
+      deploy-github-release: ${{ inputs.deploy-github-release }}
+      versioning-mode: ${{ inputs.release-mode == 'versioned' && 'auto' || 'none' }}
+      version-file: ${{ inputs.version-file }}
+      manual-version: ${{ inputs.manual-version }}
+      create-release: true
+      branch-name: ${{ inputs.branch-name }}
+      commit-message: ${{ inputs.commit-message }}
+      cloudflare-pages-project: ${{ inputs.cloudflare-pages-project }}
+      cloudflare-pages-branch: ${{ inputs.cloudflare-pages-branch }}
       cloudflare-pages-directory: public
       base-url: ""
       release-prefix: site
