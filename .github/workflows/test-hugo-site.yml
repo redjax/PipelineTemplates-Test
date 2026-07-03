@@ -42,43 +42,59 @@ on:
         description: "Target branch for branch deploys."
         required: false
         type: string
-        default: gh-pages
+        default: "gh-pages"
 
       commit-message:
         description: "Commit message for branch deploys."
         required: false
         type: string
-        default: Deploy Hugo site from test repo
+        default: "Deploy Hugo site from test repo"
 
       cloudflare-pages-project:
         description: "Cloudflare Pages project name."
         required: false
         type: string
-        default: pipelinetemplatest-test-hugo
+        default: "pipelinetemplatest-test-hugo"
 
       cloudflare-pages-branch:
         description: "Cloudflare production branch."
         required: false
         type: string
-        default: main
+        default: "main"
+
+      cloudflare-pages-directory:
+        description: "Cloudflare Pages directory."
+        required: false
+        type: string
+        default: "public"
 
       source-dir:
         description: "Path to the Hugo project root."
         required: false
         type: string
-        default: apps/hugo-site
+        default: "apps/hugo-site"
 
       version-file:
         description: "Path to the version file."
         required: false
         type: string
-        default: apps/hugo-site/.version
+        default: "apps/hugo-site/.version"
 
       manual-version:
         description: "Explicit version for manual release runs."
         required: false
         type: string
         default: ""
+
+      versioning-mode:
+        description: "Versioning mode for the reusable workflow."
+        required: false
+        type: choice
+        options:
+          - none
+          - manual
+          - auto
+        default: auto
 
   pull_request:
     branches:
@@ -101,7 +117,7 @@ jobs:
       hugo_changed: ${{ steps.filter.outputs.hugo_changed }}
     steps:
       - name: Checkout PR head
-        uses: actions/checkout@v7
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
@@ -109,10 +125,14 @@ jobs:
       - name: Check Hugo changes
         id: filter
         shell: bash
+        env:
+          SOURCE_DIR: ${{ github.event.inputs.source-dir || 'apps/hugo-site' }}
         run: |
           set -Eeuo pipefail
-          git diff --name-only "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}" > /tmp/changed-files.txt || true
-          if grep -qE '^apps/hugo-site/.*' /tmp/changed-files.txt; then
+          base="${{ github.event.pull_request.base.sha }}"
+          head="${{ github.event.pull_request.head.sha }}"
+          git diff --name-only "${base}" "${head}" > /tmp/changed-files.txt || true
+          if grep -qE "^${SOURCE_DIR}/" /tmp/changed-files.txt; then
             echo "hugo_changed=true" >> "$GITHUB_OUTPUT"
           else
             echo "hugo_changed=false" >> "$GITHUB_OUTPUT"
@@ -141,7 +161,7 @@ jobs:
       deploy-github-pages: ${{ inputs.deploy-github-pages }}
       deploy-cloudflare-pages: ${{ inputs.deploy-cloudflare-pages }}
       deploy-github-release: ${{ inputs.deploy-github-release }}
-      versioning-mode: ${{ inputs.release-mode == 'versioned' && 'auto' || 'none' }}
+      versioning-mode: ${{ inputs.versioning-mode }}
       version-file: ${{ inputs.version-file }}
       manual-version: ${{ inputs.manual-version }}
       create-release: true
@@ -149,7 +169,7 @@ jobs:
       commit-message: ${{ inputs.commit-message }}
       cloudflare-pages-project: ${{ inputs.cloudflare-pages-project }}
       cloudflare-pages-branch: ${{ inputs.cloudflare-pages-branch }}
-      cloudflare-pages-directory: public
+      cloudflare-pages-directory: ${{ inputs.cloudflare-pages-directory }}
       base-url: ""
       release-prefix: site
     secrets: inherit
