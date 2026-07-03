@@ -141,7 +141,7 @@ jobs:
   run-shared-pipeline:
     needs: [detect-changes]
     if: ${{ github.event_name == 'workflow_dispatch' || needs.detect-changes.outputs.hugo_changed == 'true' }}
-    uses: redjax/pipelinetemplates/.github/workflows/hugo-site.yml@feat/versioned-hugo-release
+    uses: redjax/pipelinetemplates/.github/workflows/hugo-site.yml@3b0d70390a48ef09fee4d925bc6e7b52225ffb68
     with:
       source-dir: ${{ inputs.source-dir }}
       public-dir: public
