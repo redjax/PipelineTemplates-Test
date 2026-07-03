@@ -14,6 +14,16 @@ on:
           - versioned
         default: none
 
+      versioning-mode:
+        description: "Versioning mode"
+        required: false
+        type: choice
+        options:
+          - none
+          - manual
+          - auto
+        default: auto
+
       deploy-branch:
         description: "Deploy to branch"
         required: false
@@ -85,16 +95,6 @@ on:
         required: false
         type: string
         default: ""
-
-      versioning-mode:
-        description: "Versioning mode for the reusable workflow."
-        required: false
-        type: choice
-        options:
-          - none
-          - manual
-          - auto
-        default: auto
 
   pull_request:
     branches:
