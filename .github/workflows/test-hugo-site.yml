@@ -1,0 +1,43 @@
+---
+name: Test Hugo site release
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "apps/hugo-site/archetypes/**"
+      - "apps/hugo-site/content/**"
+      - "apps/hugo-site/data/**"
+      - "apps/hugo-site/i18n/**"
+      - "apps/hugo-site/static/**"
+      - "apps/hugo-site/hugo.yml"
+      - "apps/hugo-site/go.mod"
+      - "apps/hugo-site/go.sum"
+
+  workflow_dispatch:
+    inputs:
+      deploy-pages:
+        description: "Deploy GitHub Pages after release."
+        required: false
+        type: boolean
+        default: false
+
+      deploy-cloudflare-pages:
+        description: "Deploy Cloudflare Pages after release."
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  release:
+    uses: redjax/pipelinetemplates/.github/workflows/hugo-release.yml@feat/release-publish-workflows
+    with:
+      site-root: "apps/hugo-site"
+      versioned: false
+      release-prefix: "site"
+      artifact-name: "hugo-site"
+      deploy-pages: ${{ github.event_name == 'workflow_dispatch' && inputs.deploy-pages || false }}
+      deploy-cloudflare-pages: ${{ github.event_name == 'workflow_dispatch' && inputs.deploy-cloudflare-pages || false }}
+    secrets:
+      release-bot-pat: ${{ secrets.RELEASE_BOT_PAT }}

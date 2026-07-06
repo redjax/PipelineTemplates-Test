@@ -1,0 +1,29 @@
+---
+name: Test Hugo site build
+
+on:
+  push:
+    branches:
+      - main
+      - feat/test-hugo-pipelines
+    paths:
+      - "apps/hugo-site/archetypes/**"
+      - "apps/hugo-site/content/**"
+      - "apps/hugo-site/data/**"
+      - "apps/hugo-site/i18n/**"
+      - "apps/hugo-site/static/**"
+      - "apps/hugo-site/hugo.yml"
+      - "apps/hugo-site/go.mod"
+      - "apps/hugo-site/go.sum"
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    uses: redjax/pipelinetemplates/.github/workflows/hugo-build.yml@feat/release-publish-workflows
+    with:
+      site-root: "apps/hugo-site"
+      artifact-name: "hugo-site"
+      public-dir: "apps/hugo-site/public"
+      build-flags: "--gc --minify --enableGitInfo"
+    secrets: inherit
