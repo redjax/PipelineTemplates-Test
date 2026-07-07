@@ -1,40 +1,51 @@
 ---
-name: Test Hugo site release
+name: Test Hugo site pipeline
 
 on:
-  workflow_run:
-    workflows:
-      - Test Hugo site build
-    types:
-      - completed
+  push:
+    branches:
+      - main
+      - feat/test-hugo-pipelines
+    # paths:
+    #   - "apps/hugo-site/archetypes/**"
+    #   - "apps/hugo-site/content/**"
+    #   - "apps/hugo-site/data/**"
+    #   - "apps/hugo-site/i18n/**"
+    #   - "apps/hugo-site/static/**"
+    #   - "apps/hugo-site/hugo.yml"
+    #   - "apps/hugo-site/go.mod"
+    #   - "apps/hugo-site/go.sum"
 
   workflow_dispatch:
     inputs:
-      force-release:
-        description: "Force the release job to run even without workflow_run."
+      manual-release:
+        description: "Also run the release stage after build."
         required: false
         type: boolean
-        default: false
-
-      build-run-id:
-        description: "Optional build run id to release from."
-        required: false
-        type: string
-        default: ""
+        default: true
 
 permissions:
-  actions: read
+  actions: write
   contents: write
 
 jobs:
+  build:
+    uses: redjax/pipelinetemplates/.github/workflows/hugo-build.yml@feat/release-publish-workflows
+    with:
+      site-root: "apps/hugo-site"
+      artifact-name: "hugo-site"
+      public-dir: "apps/hugo-site/public"
+      build-flags: "--gc --minify --enableGitInfo"
+    secrets: inherit
+
   release:
-    if: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' && inputs.force-release || github.event_name == 'push' }}
+    needs: build
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.manual-release || github.event_name == 'push' }}
     uses: redjax/pipelinetemplates/.github/workflows/hugo-gh-release.yml@feat/release-publish-workflows
     with:
       versioned: false
       release-prefix: "site"
       artifact-name: "hugo-site"
-      build-run-id: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.id || inputs.build-run-id }}
-      build-repo: ${{ github.repository }}
+      build-run-id: ${{ needs.build.result == 'success' && github.run_id || '' }}
     secrets:
       release-bot-pat: ${{ secrets.RELEASE_BOT_PAT }}
