@@ -18,6 +18,9 @@ on:
 
   workflow_dispatch:
 
+permissions:
+  actions: write
+
 jobs:
   build:
     uses: redjax/pipelinetemplates/.github/workflows/hugo-build.yml@feat/release-publish-workflows
