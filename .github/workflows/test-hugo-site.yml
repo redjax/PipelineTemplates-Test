@@ -2,9 +2,6 @@
 name: Test Hugo site release
 
 on:
-  push:
-    branches:
-      - feat/test-hugo-pipelines
   workflow_run:
     workflows:
       - Test Hugo site build
@@ -13,6 +10,12 @@ on:
 
   workflow_dispatch:
     inputs:
+      force-release:
+        description: "Force the release job to run even without workflow_run."
+        required: false
+        type: boolean
+        default: false
+
       build-run-id:
         description: "Optional build run id to release from."
         required: false
@@ -25,7 +28,7 @@ permissions:
 
 jobs:
   release:
-    if: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    if: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' && inputs.force-release }}
     uses: redjax/pipelinetemplates/.github/workflows/hugo-gh-release.yml@feat/release-publish-workflows
     with:
       versioned: false
