@@ -2,6 +2,10 @@
 name: Test Hugo site release
 
 on:
+  push:
+    branches:
+      - feat/test-hugo-pipelines
+
   workflow_run:
     workflows:
       - Test Hugo site build
@@ -28,12 +32,13 @@ permissions:
 
 jobs:
   release:
-    if: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' && inputs.force-release }}
+    if: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' && inputs.force-release || github.event_name == 'push' }}
     uses: redjax/pipelinetemplates/.github/workflows/hugo-gh-release.yml@feat/release-publish-workflows
     with:
       versioned: false
       release-prefix: "site"
       artifact-name: "hugo-site"
       build-run-id: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.id || inputs.build-run-id }}
+      build-repo: ${{ github.repository }}
     secrets:
       release-bot-pat: ${{ secrets.RELEASE_BOT_PAT }}
