@@ -30,6 +30,10 @@ on:
         type: boolean
         default: false
 
+permissions:
+  actions: read
+  contents: write
+
 jobs:
   release:
     uses: redjax/pipelinetemplates/.github/workflows/hugo-gh-release.yml@feat/release-publish-workflows
