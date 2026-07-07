@@ -34,7 +34,6 @@ jobs:
   release:
     uses: redjax/pipelinetemplates/.github/workflows/hugo-release.yml@feat/release-publish-workflows
     with:
-      site-root: "apps/hugo-site"
       versioned: false
       release-prefix: "site"
       artifact-name: "hugo-site"
