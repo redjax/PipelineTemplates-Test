@@ -2,10 +2,6 @@
 name: Test Hugo site release
 
 on:
-  push:
-    branches:
-      - feat/test-hugo-pipelines
-
   workflow_run:
     workflows:
       - Test Hugo site build
