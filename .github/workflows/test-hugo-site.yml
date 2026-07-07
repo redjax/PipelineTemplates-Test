@@ -32,12 +32,10 @@ on:
 
 jobs:
   release:
-    uses: redjax/pipelinetemplates/.github/workflows/hugo-release.yml@feat/release-publish-workflows
+    uses: redjax/pipelinetemplates/.github/workflows/hugo-gh-release.yml@feat/release-publish-workflows
     with:
       versioned: false
       release-prefix: "site"
       artifact-name: "hugo-site"
-      deploy-pages: ${{ github.event_name == 'workflow_dispatch' && inputs.deploy-pages || false }}
-      deploy-cloudflare-pages: ${{ github.event_name == 'workflow_dispatch' && inputs.deploy-cloudflare-pages || false }}
     secrets:
       release-bot-pat: ${{ secrets.RELEASE_BOT_PAT }}
