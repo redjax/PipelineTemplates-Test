@@ -5,7 +5,7 @@ on:
   push:
     branches:
       - main
-      - feat/test-hugo-pipelines
+      - feat/hugo-publish-release
     # paths:
     #   - "apps/hugo-site/archetypes/**"
     #   - "apps/hugo-site/content/**"
@@ -27,6 +27,8 @@ on:
 permissions:
   actions: write
   contents: write
+  pages: write
+  id-token: write
 
 jobs:
   prep:
@@ -63,8 +65,18 @@ jobs:
       versioned: ${{ github.event_name == 'push' }}
       release-prefix: "site"
       artifact-name: "hugo-site"
-      build-run-id: ${{ needs.build.result == 'success' && github.run_id || '' }}
+      build-run-id: ${{ github.run_id }}
       ## Use computed shorthash for commit SHA on manual runs
       release-tag: ${{ github.event_name == 'workflow_dispatch' && format('site-{0}', needs.prep.outputs.short-sha) || '' }}
     secrets:
       release-bot-pat: ${{ secrets.RELEASE_BOT_PAT }}
+
+  publish-pages:
+    needs: release
+    if: ${{ needs.release.result == 'success' }}
+    uses: redjax/pipelinetemplates/.github/workflows/hugo-publish.yml@feat/release-publish-workflows
+    with:
+      target: "github-pages"
+      artifact-name: "hugo-site"
+      run-id: ${{ github.run_id }}
+    secrets: inherit
