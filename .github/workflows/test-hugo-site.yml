@@ -59,6 +59,7 @@ jobs:
     if: ${{ github.event_name == 'workflow_dispatch' && inputs.manual-release || github.event_name == 'push' }}
     uses: redjax/pipelinetemplates/.github/workflows/hugo-gh-release.yml@feat/release-publish-workflows
     with:
+      site-root: "apps/hugo-site"
       versioned: ${{ github.event_name == 'push' }}
       release-prefix: "site"
       artifact-name: "hugo-site"
