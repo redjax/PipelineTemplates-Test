@@ -5,16 +5,15 @@ on:
   push:
     branches:
       - main
-      - feat/hugo-publish-release
-    # paths:
-    #   - "apps/hugo-site/archetypes/**"
-    #   - "apps/hugo-site/content/**"
-    #   - "apps/hugo-site/data/**"
-    #   - "apps/hugo-site/i18n/**"
-    #   - "apps/hugo-site/static/**"
-    #   - "apps/hugo-site/hugo.yml"
-    #   - "apps/hugo-site/go.mod"
-    #   - "apps/hugo-site/go.sum"
+    paths:
+      - "apps/hugo-site/archetypes/**"
+      - "apps/hugo-site/content/**"
+      - "apps/hugo-site/data/**"
+      - "apps/hugo-site/i18n/**"
+      - "apps/hugo-site/static/**"
+      - "apps/hugo-site/hugo.yml"
+      - "apps/hugo-site/go.mod"
+      - "apps/hugo-site/go.sum"
 
   workflow_dispatch:
     inputs:
@@ -23,6 +22,12 @@ on:
         required: false
         type: boolean
         default: true
+
+      publish-gh-pages:
+        description: "Publish site artifact to GitHub Pages."
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   actions: write
@@ -73,7 +78,7 @@ jobs:
 
   publish-pages:
     needs: release
-    if: ${{ needs.release.result == 'success' }}
+    if: ${{ needs.release.result == 'success' && (github.event_name == 'push' || inputs.publish-gh-pages) }}
     uses: redjax/pipelinetemplates/.github/workflows/hugo-publish.yml@feat/release-publish-workflows
     with:
       target: "github-pages"
