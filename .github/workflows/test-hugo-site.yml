@@ -23,6 +23,12 @@ on:
         type: boolean
         default: true
 
+      use-selfhosted-runner:
+        description: "Use a self-hosted runner."
+        required: false
+        type: boolean
+        default: false
+
       publish-gh-pages:
         description: "Publish site artifact to GitHub Pages."
         required: false
@@ -37,7 +43,7 @@ permissions:
 
 jobs:
   prep:
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.use-selfhosted-runner && fromJSON('["self-hosted","pipelinetemplates-test"]') || 'ubuntu-latest' }}
     outputs:
       short-sha: ${{ steps.vars.outputs.short-sha }}
     steps:
