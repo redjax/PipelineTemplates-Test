@@ -1,0 +1,70 @@
+---
+name: Test Hugo site pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - feat/test-hugo-pipelines
+    # paths:
+    #   - "apps/hugo-site/archetypes/**"
+    #   - "apps/hugo-site/content/**"
+    #   - "apps/hugo-site/data/**"
+    #   - "apps/hugo-site/i18n/**"
+    #   - "apps/hugo-site/static/**"
+    #   - "apps/hugo-site/hugo.yml"
+    #   - "apps/hugo-site/go.mod"
+    #   - "apps/hugo-site/go.sum"
+
+  workflow_dispatch:
+    inputs:
+      manual-release:
+        description: "Also run the release stage after build."
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  actions: write
+  contents: write
+
+jobs:
+  prep:
+    runs-on: ubuntu-latest
+    outputs:
+      short-sha: ${{ steps.vars.outputs.short-sha }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v7
+
+      - name: Compute short sha
+        id: vars
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo "short-sha=$(git rev-parse --short=7 ${{ github.sha }})" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: prep
+    uses: redjax/pipelinetemplates/.github/workflows/hugo-build.yml@feat/release-publish-workflows
+    with:
+      site-root: "apps/hugo-site"
+      artifact-name: "hugo-site"
+      public-dir: "apps/hugo-site/public"
+      build-flags: "--gc --minify --enableGitInfo"
+    secrets: inherit
+
+  release:
+    needs: [prep, build]
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.manual-release || github.event_name == 'push' }}
+    uses: redjax/pipelinetemplates/.github/workflows/hugo-gh-release.yml@feat/release-publish-workflows
+    with:
+      site-root: "apps/hugo-site"
+      versioned: ${{ github.event_name == 'push' }}
+      release-prefix: "site"
+      artifact-name: "hugo-site"
+      build-run-id: ${{ needs.build.result == 'success' && github.run_id || '' }}
+      ## Use computed shorthash for commit SHA on manual runs
+      release-tag: ${{ github.event_name == 'workflow_dispatch' && format('site-{0}', needs.prep.outputs.short-sha) || '' }}
+    secrets:
+      release-bot-pat: ${{ secrets.RELEASE_BOT_PAT }}
