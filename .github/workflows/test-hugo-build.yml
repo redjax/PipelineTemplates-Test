@@ -17,6 +17,12 @@ on:
       - "apps/hugo-site/go.sum"
 
   workflow_dispatch:
+    inputs:
+      use-selfhosted-runner:
+        description: "Use a self-hosted runner."
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   actions: write
@@ -30,4 +36,5 @@ jobs:
       artifact-name: "hugo-site"
       public-dir: "apps/hugo-site/public"
       build-flags: "--gc --minify --enableGitInfo"
+      runner-image: ${{ inputs.use-selfhosted-runner && fromJSON('["self-hosted","pipelinetemplates-test"]') || 'ubuntu-latest' }}
     secrets: inherit
