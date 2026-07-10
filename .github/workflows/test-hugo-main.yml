@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - fix/disable-automatic-build
     paths:
       - "apps/hugo-site/archetypes/**"
       - "apps/hugo-site/content/**"
