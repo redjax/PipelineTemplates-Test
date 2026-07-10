@@ -37,5 +37,5 @@ jobs:
       artifact-name: "hugo-site"
       public-dir: "apps/hugo-site/public"
       build-flags: "--gc --minify --enableGitInfo"
-      runner-image: ${{ inputs.use-selfhosted-runner && 'cherrypi-pipelinetemplates-test' || 'ubuntu-latest' }}
+      runner-image: ${{ inputs.use-selfhosted-runner && 'pipelinetemplates-test' || 'ubuntu-latest' }}
     secrets: inherit
