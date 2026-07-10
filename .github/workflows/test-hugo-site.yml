@@ -23,12 +23,6 @@ on:
         type: boolean
         default: true
 
-      use-selfhosted-runner:
-        description: "Use a self-hosted runner."
-        required: false
-        type: boolean
-        default: false
-
       publish-gh-pages:
         description: "Publish site artifact to GitHub Pages."
         required: false
@@ -42,27 +36,10 @@ permissions:
   id-token: write
 
 jobs:
-  select-runner:
-    runs-on: ubuntu-latest
-    outputs:
-      runner-image: ${{ steps.out.outputs.runner-image }}
-    steps:
-      - id: out
-        shell: bash
-        env:
-          USE_SELF_HOSTED: ${{ inputs.use-selfhosted-runner }}
-        run: |
-          set -Eeuo pipefail
-
-          if [[ "${USE_SELF_HOSTED}" == "true" ]]; then
-            echo 'runner-image=["self-hosted","pipelinetemplates-test"]' >> "$GITHUB_OUTPUT"
-          else
-            echo 'runner-image="ubuntu-latest"' >> "$GITHUB_OUTPUT"
-          fi
-
   prep:
-    needs: select-runner
-    runs-on: ${{ fromJSON(needs.select-runner.outputs.runner-image) }}
+    # runs-on: ubuntu-latest
+    ## Selfhosted runner
+    runs-on: [self-hosted, pipelinetemplates-test]
     outputs:
       short-sha: ${{ steps.vars.outputs.short-sha }}
     steps:
@@ -78,18 +55,18 @@ jobs:
           echo "short-sha=$(git rev-parse --short=7 ${{ github.sha }})" >> "$GITHUB_OUTPUT"
 
   build:
-    needs: [select-runner, prep]
+    needs: prep
     uses: redjax/pipelinetemplates/.github/workflows/hugo-build.yml@feat/release-publish-workflows
     with:
       site-root: "apps/hugo-site"
       artifact-name: "hugo-site"
       public-dir: "apps/hugo-site/public"
       build-flags: "--gc --minify --enableGitInfo"
-      runner-image: ${{ needs.select-runner.outputs.runner-image }}
+      runner-image: '["self-hosted", "pipelinetemplates-test"]'
     secrets: inherit
 
   release:
-    needs: [select-runner, prep, build]
+    needs: [prep, build]
     if: ${{ github.event_name == 'workflow_dispatch' && inputs.manual-release || github.event_name == 'push' }}
     uses: redjax/pipelinetemplates/.github/workflows/hugo-gh-release.yml@feat/release-publish-workflows
     with:
@@ -100,17 +77,17 @@ jobs:
       build-run-id: ${{ github.run_id }}
       ## Use computed shorthash for commit SHA on manual runs
       release-tag: ${{ github.event_name == 'workflow_dispatch' && format('site-{0}', needs.prep.outputs.short-sha) || '' }}
-      runner-image: ${{ needs.select-runner.outputs.runner-image }}
+      runner-image: '["self-hosted", "pipelinetemplates-test"]'
     secrets:
       release-bot-pat: ${{ secrets.RELEASE_BOT_PAT }}
 
   publish-pages:
-    needs: [select-runner, release]
+    needs: release
     if: ${{ needs.release.result == 'success' && (github.event_name == 'push' || inputs.publish-gh-pages) }}
     uses: redjax/pipelinetemplates/.github/workflows/hugo-publish.yml@feat/release-publish-workflows
     with:
       target: "github-pages"
       artifact-name: "hugo-site"
       run-id: ${{ github.run_id }}
-      runner-image: ${{ needs.select-runner.outputs.runner-image }}
+      runner-image: '["self-hosted", "pipelinetemplates-test"]'
     secrets: inherit
