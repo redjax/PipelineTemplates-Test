@@ -46,6 +46,7 @@ jobs:
       publish-gh-pages: ${{ inputs.publish-gh-pages || false }}
       publish-target: ${{ inputs.publish-target || '' }}
       runner-image: ${{ inputs.runner-img-or-label || 'ubuntu-latest' }}
+      templates-ref: feat/release-publish-workflows
     secrets:
       release-bot-pat: ${{ secrets.RELEASE_BOT_PAT }}
       cloudflare-api-token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
