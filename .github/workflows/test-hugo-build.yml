@@ -35,8 +35,7 @@ permissions:
 
 jobs:
   build:
-    # uses: redjax/pipelinetemplates/.github/workflows/hugo-build.yml@feat/release-publish-workflows
-    uses: redjax/pipelinetemplates/.github/workflows/hugo-build.yml@tmp/runner-image-test
+    uses: redjax/pipelinetemplates/.github/workflows/hugo-build.yml@feat/release-publish-workflows
     with:
       site-root: "apps/hugo-site"
       artifact-name: "hugo-site"

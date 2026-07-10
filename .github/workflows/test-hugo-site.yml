@@ -62,8 +62,7 @@ jobs:
 
   build:
     needs: prep
-    # uses: redjax/pipelinetemplates/.github/workflows/hugo-build.yml@feat/release-publish-workflows
-    uses: redjax/pipelinetemplates/.github/workflows/hugo-build.yml@tmp/runner-image-test
+    uses: redjax/pipelinetemplates/.github/workflows/hugo-build.yml@feat/release-publish-workflows
     with:
       site-root: "apps/hugo-site"
       artifact-name: "hugo-site"
@@ -75,8 +74,7 @@ jobs:
   release:
     needs: [prep, build]
     if: ${{ github.event_name == 'workflow_dispatch' && inputs.manual-release || github.event_name == 'push' }}
-    # uses: redjax/pipelinetemplates/.github/workflows/hugo-gh-release.yml@feat/release-publish-workflows
-    uses: redjax/pipelinetemplates/.github/workflows/hugo-gh-release.yml@tmp/runner-image-test
+    uses: redjax/pipelinetemplates/.github/workflows/hugo-gh-release.yml@feat/release-publish-workflows
     with:
       site-root: "apps/hugo-site"
       versioned: ${{ github.event_name == 'push' }}
@@ -92,8 +90,7 @@ jobs:
   publish-pages:
     needs: release
     if: ${{ needs.release.result == 'success' && (github.event_name == 'push' || inputs.publish-gh-pages) }}
-    # uses: redjax/pipelinetemplates/.github/workflows/hugo-publish.yml@feat/release-publish-workflows
-    uses: redjax/pipelinetemplates/.github/workflows/hugo-publish.yml@tmp/runner-image-test
+    uses: redjax/pipelinetemplates/.github/workflows/hugo-publish.yml@feat/release-publish-workflows
     with:
       target: "github-pages"
       artifact-name: "hugo-site"
