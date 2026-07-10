@@ -37,9 +37,9 @@ permissions:
 
 jobs:
   prep:
-    # runs-on: ubuntu-latest
+    runs-on: ubuntu-latest
     ## Selfhosted runner
-    runs-on: cherrypi-pipelinetemplates-test
+    # runs-on: self-hosted
     outputs:
       short-sha: ${{ steps.vars.outputs.short-sha }}
     steps:
