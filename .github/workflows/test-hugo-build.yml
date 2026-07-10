@@ -5,7 +5,6 @@ on:
   push:
     branches:
       - main
-      - feat/test-hugo-pipelines
     paths:
       - "apps/hugo-site/archetypes/**"
       - "apps/hugo-site/content/**"
