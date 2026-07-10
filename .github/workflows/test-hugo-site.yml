@@ -29,6 +29,12 @@ on:
         type: boolean
         default: false
 
+      runner-img-or-label:
+        description: "A runner image (i.e. ubuntu-latest) or self-hosted runner label (i.e. pipelinetemplates-test)"
+        required: true
+        type: string
+        default: ubuntu-latest
+
 permissions:
   actions: write
   contents: write
@@ -37,9 +43,9 @@ permissions:
 
 jobs:
   prep:
-    runs-on: ubuntu-latest
+    # runs-on: ubuntu-latest
     ## Selfhosted runner
-    # runs-on: self-hosted
+    runs-on: ${{ inputs.runner-img-or-label || 'ubuntu-latest' }}
     outputs:
       short-sha: ${{ steps.vars.outputs.short-sha }}
     steps:
@@ -62,7 +68,7 @@ jobs:
       artifact-name: "hugo-site"
       public-dir: "apps/hugo-site/public"
       build-flags: "--gc --minify --enableGitInfo"
-      # runner-image: self-hosted
+      runner-image: ${{ inputs.runner-img-or-label || 'ubuntu-latest' }}
     secrets: inherit
 
   release:
@@ -77,7 +83,7 @@ jobs:
       build-run-id: ${{ github.run_id }}
       ## Use computed shorthash for commit SHA on manual runs
       release-tag: ${{ github.event_name == 'workflow_dispatch' && format('site-{0}', needs.prep.outputs.short-sha) || '' }}
-      # runner-image: self-hosted
+      runner-image: ${{ inputs.runner-img-or-label || 'ubuntu-latest' }}
     secrets:
       release-bot-pat: ${{ secrets.RELEASE_BOT_PAT }}
 
@@ -89,5 +95,5 @@ jobs:
       target: "github-pages"
       artifact-name: "hugo-site"
       run-id: ${{ github.run_id }}
-      # runner-image: self-hosted
+      runner-image: ${{ inputs.runner-img-or-label || 'ubuntu-latest' }}
     secrets: inherit
