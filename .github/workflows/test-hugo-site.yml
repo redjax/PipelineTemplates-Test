@@ -62,7 +62,7 @@ jobs:
       artifact-name: "hugo-site"
       public-dir: "apps/hugo-site/public"
       build-flags: "--gc --minify --enableGitInfo"
-      runner-image: "cherrypi-pipelinetemplates-test"
+      # runner-image: self-hosted
     secrets: inherit
 
   release:
@@ -77,7 +77,7 @@ jobs:
       build-run-id: ${{ github.run_id }}
       ## Use computed shorthash for commit SHA on manual runs
       release-tag: ${{ github.event_name == 'workflow_dispatch' && format('site-{0}', needs.prep.outputs.short-sha) || '' }}
-      runner-image: cherrypi-pipelinetemplates-test
+      # runner-image: self-hosted
     secrets:
       release-bot-pat: ${{ secrets.RELEASE_BOT_PAT }}
 
@@ -89,5 +89,5 @@ jobs:
       target: "github-pages"
       artifact-name: "hugo-site"
       run-id: ${{ github.run_id }}
-      runner-image: cherrypi-pipelinetemplates-test
+      # runner-image: self-hosted
     secrets: inherit
