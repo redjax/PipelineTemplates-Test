@@ -1,5 +1,5 @@
 ---
-name: Test Hugo site pipeline
+name: Test Hugo build, tag, release
 
 on:
   push:
