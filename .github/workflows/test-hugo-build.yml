@@ -30,11 +30,12 @@ permissions:
 
 jobs:
   build:
-    uses: redjax/pipelinetemplates/.github/workflows/hugo-build.yml@feat/release-publish-workflows
+    # uses: redjax/pipelinetemplates/.github/workflows/hugo-build.yml@feat/release-publish-workflows
+    uses: redjax/pipelinetemplates/.github/workflows/hugo-build.yml@tmp/runner-image-test
     with:
       site-root: "apps/hugo-site"
       artifact-name: "hugo-site"
       public-dir: "apps/hugo-site/public"
       build-flags: "--gc --minify --enableGitInfo"
-      runner-image: ${{ inputs.use-selfhosted-runner && fromJSON('["self-hosted","pipelinetemplates-test"]') || 'ubuntu-latest' }}
+      runner-image: ${{ inputs.use-selfhosted-runner && 'cherrypi-pipelinetemplates-test' || 'ubuntu-latest' }}
     secrets: inherit
