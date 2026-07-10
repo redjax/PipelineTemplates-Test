@@ -30,6 +30,12 @@ on:
 
 jobs:
   pipeline:
+    permissions:
+      contents: write
+      actions: write
+      pull-requests: write
+      pages: write
+      id-token: write
     uses: redjax/pipelinetemplates/.github/workflows/hugo-site-main.yml@feat/release-publish-workflows
     with:
       site-root: "apps/hugo-site"
