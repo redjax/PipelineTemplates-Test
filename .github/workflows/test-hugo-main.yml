@@ -19,10 +19,20 @@ on:
     inputs:
       publish-gh-pages:
         type: boolean
+        required: false
         default: false
-      publish-target:
+      publish-to-branch:
+        required: false
+        default: false
+        type: boolean
+      branch-name:
         type: string
-        default: ""
+        required: false
+        default: "gh-pages"
+      publish-cf-pages:
+        required: false
+        default: false
+        type: boolean
       runner-img-or-label:
         type: string
         default: ubuntu-latest
@@ -35,17 +45,21 @@ jobs:
       pull-requests: write
       pages: write
       id-token: write
-    uses: redjax/pipelinetemplates/.github/workflows/hugo-site-main.yml@fix/cf-publish-step
+    uses: redjax/pipelinetemplates/.github/workflows/hugo-site-main.yml@topic/hugo-consolidated-pipeline
     with:
       site-root: "apps/hugo-site"
       versioned: true
       version-file: ".version"
       artifact-name: "hugo-site"
       release-prefix: "site"
+      branch-name: ${{ inputs.branch-name || 'gh-pages' }}
       publish-gh-pages: ${{ inputs.publish-gh-pages || false }}
-      publish-target: ${{ inputs.publish-target || '' }}
+      publish-to-branch: ${{ inputs.publish-to-branch || false }}
+      publish-cf-pages: ${{ inputs.publish-cf-pages || false }}
+      cloudflare-pages-project: "pipelinetemplates-test"
+      cloudflare-pages-branch: "feat/test-publish-matrix"
       runner-image: ${{ inputs.runner-img-or-label || 'ubuntu-latest' }}
-      templates-ref: fix/cf-publish-step
+      templates-ref: topic/hugo-consolidated-pipeline
     secrets:
       release-bot-pat: ${{ secrets.RELEASE_BOT_PAT }}
       cloudflare-api-token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
