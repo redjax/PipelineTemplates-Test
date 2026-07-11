@@ -35,7 +35,7 @@ jobs:
       pull-requests: write
       pages: write
       id-token: write
-    uses: redjax/pipelinetemplates/.github/workflows/hugo-site-main.yml@feat/release-publish-workflows
+    uses: redjax/pipelinetemplates/.github/workflows/hugo-site-main.yml@fix/cf-publish-step
     with:
       site-root: "apps/hugo-site"
       versioned: true
@@ -45,7 +45,7 @@ jobs:
       publish-gh-pages: ${{ inputs.publish-gh-pages || false }}
       publish-target: ${{ inputs.publish-target || '' }}
       runner-image: ${{ inputs.runner-img-or-label || 'ubuntu-latest' }}
-      templates-ref: feat/release-publish-workflows
+      templates-ref: fix/cf-publish-step
     secrets:
       release-bot-pat: ${{ secrets.RELEASE_BOT_PAT }}
       cloudflare-api-token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
