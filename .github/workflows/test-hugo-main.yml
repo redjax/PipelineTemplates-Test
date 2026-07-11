@@ -1,0 +1,52 @@
+---
+name: Hugo Site Main
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "apps/hugo-site/archetypes/**"
+      - "apps/hugo-site/content/**"
+      - "apps/hugo-site/data/**"
+      - "apps/hugo-site/i18n/**"
+      - "apps/hugo-site/static/**"
+      - "apps/hugo-site/hugo.yml"
+      - "apps/hugo-site/go.mod"
+      - "apps/hugo-site/go.sum"
+
+  workflow_dispatch:
+    inputs:
+      publish-gh-pages:
+        type: boolean
+        default: false
+      publish-target:
+        type: string
+        default: ""
+      runner-img-or-label:
+        type: string
+        default: ubuntu-latest
+
+jobs:
+  pipeline:
+    permissions:
+      contents: write
+      actions: write
+      pull-requests: write
+      pages: write
+      id-token: write
+    uses: redjax/pipelinetemplates/.github/workflows/hugo-site-main.yml@feat/release-publish-workflows
+    with:
+      site-root: "apps/hugo-site"
+      versioned: true
+      version-file: ".version"
+      artifact-name: "hugo-site"
+      release-prefix: "site"
+      publish-gh-pages: ${{ inputs.publish-gh-pages || false }}
+      publish-target: ${{ inputs.publish-target || '' }}
+      runner-image: ${{ inputs.runner-img-or-label || 'ubuntu-latest' }}
+      templates-ref: feat/release-publish-workflows
+    secrets:
+      release-bot-pat: ${{ secrets.RELEASE_BOT_PAT }}
+      cloudflare-api-token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      cloudflare-account-id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
