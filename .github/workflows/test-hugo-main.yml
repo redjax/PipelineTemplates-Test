@@ -44,6 +44,13 @@ on:
         type: string
         default: ubuntu-latest
 
+permissions:
+  actions: write
+  contents: write
+  pages: write
+  pull-requests: write
+  id-token: write
+
 jobs:
   ## Run on PR merge to main when Hugo files have changed
   auto:
