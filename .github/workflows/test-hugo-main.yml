@@ -57,6 +57,7 @@ jobs:
       publish-to-branch: ${{ inputs.publish-to-branch || false }}
       publish-cf-pages: ${{ inputs.publish-cf-pages || false }}
       cloudflare-pages-project: "pipelinetemplates-test"
+      cloudflare-pages-branch: "feat/test-publish-matrix"
       runner-image: ${{ inputs.runner-img-or-label || 'ubuntu-latest' }}
       templates-ref: fix/cf-publish-step
     secrets:
