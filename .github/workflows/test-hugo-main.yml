@@ -54,15 +54,15 @@ jobs:
       artifact-name: "hugo-site"
       release-prefix: "site"
       branch-name: ${{ inputs.branch-name || 'gh-pages' }}
-      publish-gh-pages: ${{ inputs.publish-gh-pages || false }}
+      publish-gh-pages: ${{ github.event_name == 'push' || inputs.publish-gh-pages || false }}
       publish-to-branch: ${{ inputs.publish-to-branch || false }}
-      publish-cf-pages: ${{ inputs.publish-cf-pages || false }}
+      publish-cf-pages: ${{ github.event_name == 'push' || inputs.publish-cf-pages || false }}
       cloudflare-pages-project: "pipelinetemplates-test"
-      cloudflare-pages-branch: "feat/test-publish-matrix"
-      # cloudflare-pages-branch: "fix/hugo-pr-pipeline"
+      # cloudflare-pages-branch: "topic/hugo-consolidated-pipelines"
+      cloudflare-pages-branch: "fix/hugo-pr-pipeline"
       runner-image: ${{ inputs.runner-img-or-label || 'ubuntu-latest' }}
-      templates-ref: topic/hugo-consolidated-pipelines
-      # templates-ref: "fix/hugo-pr-pipeline"
+      # templates-ref: topic/hugo-consolidated-pipelines
+      templates-ref: "fix/hugo-pr-pipeline"
     secrets:
       release-bot-pat: ${{ secrets.RELEASE_BOT_PAT }}
       cloudflare-api-token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
