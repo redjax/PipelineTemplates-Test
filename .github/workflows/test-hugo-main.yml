@@ -46,6 +46,7 @@ jobs:
       pages: write
       id-token: write
     uses: redjax/pipelinetemplates/.github/workflows/hugo-site-main.yml@topic/hugo-consolidated-pipelines
+    # uses: redjax/pipelinetemplates/.github/workflows/hugo-site-main.yml@fix/hugo-pr-pipeline
     with:
       site-root: "apps/hugo-site"
       versioned: true
@@ -58,8 +59,10 @@ jobs:
       publish-cf-pages: ${{ inputs.publish-cf-pages || false }}
       cloudflare-pages-project: "pipelinetemplates-test"
       cloudflare-pages-branch: "feat/test-publish-matrix"
+      # cloudflare-pages-branch: "fix/hugo-pr-pipeline"
       runner-image: ${{ inputs.runner-img-or-label || 'ubuntu-latest' }}
       templates-ref: topic/hugo-consolidated-pipelines
+      # templates-ref: "fix/hugo-pr-pipeline"
     secrets:
       release-bot-pat: ${{ secrets.RELEASE_BOT_PAT }}
       cloudflare-api-token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
