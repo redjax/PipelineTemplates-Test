@@ -1,4 +1,11 @@
 ---
+###################################################################
+# Automatic & manual Hugo site pipeline.                          #
+#                                                                 #
+# Handles versioning, building, tagging/releasing, and publishing #
+# the Hugo site in this repository.                               #
+###################################################################
+
 name: Hugo Site Main
 
 on:
@@ -38,30 +45,46 @@ on:
         default: ubuntu-latest
 
 jobs:
-  pipeline:
-    permissions:
-      contents: write
-      actions: write
-      pull-requests: write
-      pages: write
-      id-token: write
-    # uses: redjax/pipelinetemplates/.github/workflows/hugo-site-main.yml@topic/hugo-consolidated-pipelines
-    uses: redjax/pipelinetemplates/.github/workflows/hugo-site-main.yml@feat/split-hugo-orchestrators
+  ## Run on PR merge to main when Hugo files have changed
+  auto:
+    if: ${{ github.event_name == 'push' }}
+    uses: redjax/pipelinetemplates/.github/workflows/hugo-site-auto-main.yml@feat/split-hugo-orchestrators
     with:
       site-root: "apps/hugo-site"
       versioned: true
       version-file: ".version"
       artifact-name: "hugo-site"
       release-prefix: "site"
-      branch-name: ${{ inputs.branch-name || 'gh-pages' }}
-      publish-gh-pages: ${{ github.event_name == 'push' || inputs.publish-gh-pages || false }}
-      publish-to-branch: ${{ inputs.publish-to-branch || false }}
-      publish-cf-pages: ${{ github.event_name == 'push' || inputs.publish-cf-pages || false }}
+      publish-gh-pages: true
+      publish-to-branch: false
+      publish-cf-pages: true
+      branch-name: "gh-pages"
       cloudflare-pages-project: "pipelinetemplates-test"
-      # cloudflare-pages-branch: "topic/hugo-consolidated-pipelines"
       cloudflare-pages-branch: "feat/split-hugo-orchestrators"
-      runner-image: ${{ inputs.runner-img-or-label || 'ubuntu-latest' }}
-      # templates-ref: topic/hugo-consolidated-pipelines
+      runner-image: "ubuntu-latest"
+      templates-ref: "feat/split-hugo-orchestrators"
+    secrets:
+      release-bot-pat: ${{ secrets.RELEASE_BOT_PAT }}
+      cloudflare-api-token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      cloudflare-account-id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+  ## Run on manual dispatch
+  manual:
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    uses: redjax/pipelinetemplates/.github/workflows/hugo-site-manual-main.yml@feat/split-hugo-orchestrators
+    with:
+      site-root: "apps/hugo-site"
+      versioned: true
+      version-file: ".version"
+      artifact-name: "hugo-site"
+      release-prefix: "site"
+      publish-gh-pages: ${{ inputs.publish-gh-pages }}
+      publish-to-branch: ${{ inputs.publish-to-branch }}
+      publish-cf-pages: ${{ inputs.publish-cf-pages }}
+      branch-name: ${{ inputs.branch-name }}
+      cloudflare-pages-project: "pipelinetemplates-test"
+      cloudflare-pages-branch: "feat/split-hugo-orchestrators"
+      runner-image: ${{ inputs.runner-img-or-label }}
       templates-ref: "feat/split-hugo-orchestrators"
     secrets:
       release-bot-pat: ${{ secrets.RELEASE_BOT_PAT }}
