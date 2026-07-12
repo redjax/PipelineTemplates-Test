@@ -1,10 +1,18 @@
 ---
+################################################################################################
+# Hugo tag, build, release, & publish pipeline.                                                #
+#                                                                                              #
+# Uses the hugo-main.yml pipeline in the PipelineTemplates repository:                         #
+#   https://github.com/redjax/PipelineTemplates/blob/main/.github/workflows/hugo-site-main.yml #
+################################################################################################
 name: Hugo Site Main
 
 on:
   push:
     branches:
       - main
+    ## Use the path to the Hugo site's root (wherever the site was initialized).
+    #  If it's a subdirectory, the path should be relative to the repo root.
     paths:
       - "apps/hugo-site/archetypes/**"
       - "apps/hugo-site/content/**"
@@ -45,8 +53,7 @@ jobs:
       pull-requests: write
       pages: write
       id-token: write
-    uses: redjax/pipelinetemplates/.github/workflows/hugo-site-main.yml@topic/hugo-consolidated-pipelines
-    # uses: redjax/pipelinetemplates/.github/workflows/hugo-site-main.yml@fix/hugo-pr-pipeline
+    uses: redjax/pipelinetemplates/.github/workflows/hugo-site-main.yml@main
     with:
       site-root: "apps/hugo-site"
       versioned: true
@@ -58,11 +65,9 @@ jobs:
       publish-to-branch: ${{ inputs.publish-to-branch || false }}
       publish-cf-pages: ${{ github.event_name == 'push' || inputs.publish-cf-pages || false }}
       cloudflare-pages-project: "pipelinetemplates-test"
-      cloudflare-pages-branch: "topic/hugo-consolidated-pipelines"
-      # cloudflare-pages-branch: "fix/hugo-pr-pipeline"
+      cloudflare-pages-branch: "main"
       runner-image: ${{ inputs.runner-img-or-label || 'ubuntu-latest' }}
-      templates-ref: topic/hugo-consolidated-pipelines
-      # templates-ref: "fix/hugo-pr-pipeline"
+      templates-ref: main
     secrets:
       release-bot-pat: ${{ secrets.RELEASE_BOT_PAT }}
       cloudflare-api-token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
