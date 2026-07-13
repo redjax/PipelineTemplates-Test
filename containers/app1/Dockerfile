@@ -1,5 +1,5 @@
 # containers/app1/Dockerfile
-FROM golang:1.22-alpine AS build
+FROM golang:1.26-alpine AS build
 
 WORKDIR /src
 
@@ -24,7 +24,7 @@ RUN printf '%s\n' \
 
 RUN go build -o /out/app1 main.go
 
-FROM alpine:3.19
+FROM alpine:3.24
 
 WORKDIR /app
 COPY --from=build /out/app1 ./app1
