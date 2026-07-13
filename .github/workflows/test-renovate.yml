@@ -25,6 +25,12 @@ on:
           - debug
           - trace
 
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+  actions: write
+
 jobs:
   renovate:
     uses: redjax/pipelinetemplates/.github/workflows/renovate.yml@feat/renovate-workflow
