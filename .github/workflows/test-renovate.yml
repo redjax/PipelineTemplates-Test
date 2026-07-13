@@ -24,10 +24,6 @@ on:
           - info
           - debug
           - trace
-      renovate-author-email:
-        description: "Override Renovate bot email"
-        required: false
-        type: string
 
 permissions:
   contents: read
@@ -46,7 +42,7 @@ jobs:
       require-config: optional
       autodiscover: false
       runner-image: ubuntu-latest
-      renovate-author-email: ${{ inputs.renovate-author-email || '5534031+redjax@users.noreply.github.com' }}
+      renovate-author-email: "5534031+redjax@users.noreply.github.com"
     secrets:
       renovate-token: ${{ secrets.RENOVATE_TOKEN }}
       gh-api-token: ${{ secrets.GH_API_TOKEN }}
