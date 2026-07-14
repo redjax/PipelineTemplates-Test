@@ -1,5 +1,5 @@
 # containers/app2/Dockerfile
-FROM alpine:3.19
+FROM alpine:3.24
 
 # Build args that you pass from the workflow
 ARG GIT_SHA="unknown"
