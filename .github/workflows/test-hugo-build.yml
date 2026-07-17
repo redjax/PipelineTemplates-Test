@@ -41,7 +41,7 @@ permissions:
 
 jobs:
   build:
-    uses: redjax/pipelinetemplates/.github/workflows/hugo-build.yml@fix/repo-state-inspect
+    uses: redjax/pipelinetemplates/.github/workflows/hugo-build.yml@topic/hugo-pipeline-refinement
     with:
       site-root: "apps/hugo-site"
       artifact-name: "hugo-site"
