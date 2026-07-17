@@ -12,18 +12,17 @@ on:
   push:
     branches:
       - main
-      - feat/test-hugo-publish-workflows
-    # paths:
-    #   - "apps/hugo-site/archetypes/**"
-    #   - "apps/hugo-site/content/**"
-    #   - "apps/hugo-site/data/**"
-    #   - "apps/hugo-site/i18n/**"
-    #   - "apps/hugo-site/static/**"
-    #   - "apps/hugo-site/hugo.yml"
-    #   - "apps/hugo-site/go.mod"
-    #   - "apps/hugo-site/go.sum"
-    #   - "apps/hugo-site/.version"
-    #   - "apps/hugo-site/.bumpversion.toml"
+    paths:
+      - "apps/hugo-site/archetypes/**"
+      - "apps/hugo-site/content/**"
+      - "apps/hugo-site/data/**"
+      - "apps/hugo-site/i18n/**"
+      - "apps/hugo-site/static/**"
+      - "apps/hugo-site/hugo.yml"
+      - "apps/hugo-site/go.mod"
+      - "apps/hugo-site/go.sum"
+      - "apps/hugo-site/.version"
+      - "apps/hugo-site/.bumpversion.toml"
 
   workflow_dispatch:
     inputs:
