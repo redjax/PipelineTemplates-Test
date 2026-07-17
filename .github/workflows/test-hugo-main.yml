@@ -6,7 +6,7 @@
 #   https://github.com/redjax/PipelineTemplates/blob/main/.github/workflows/hugo-site-main.yml #
 ################################################################################################
 
-name: Hugo Site Main
+name: Test Hugo Site Main
 
 on:
   push:
