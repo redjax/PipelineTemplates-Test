@@ -6,7 +6,7 @@
 #   https://github.com/redjax/PipelineTemplates/blob/main/.github/workflows/hugo-site-main.yml #
 ################################################################################################
 
-name: Hugo Site Main
+name: Test Hugo Site Main
 
 on:
   push:
@@ -68,7 +68,7 @@ jobs:
       pages: write
       id-token: write
     ## If you change this, make sure to also double check the templates-ref input below
-    uses: redjax/pipelinetemplates/.github/workflows/hugo-site-main.yml@topic/hugo-pipeline-refinement
+    uses: redjax/pipelinetemplates/.github/workflows/hugo-site-main.yml@main
     with:
       publish-targets: ${{ inputs.publish-targets || '["github-pages","cloudflare-pages","branch"]' }}
       hugo-version: "0.161.1"
@@ -83,7 +83,7 @@ jobs:
       cloudflare-pages-branch: ${{ inputs.cloudflare-pages-branch || 'main' }}
       branch-name: ${{ inputs.branch-name || 'gh-pages' }}
       runner-image: ${{ inputs.runner-img-or-label || 'ubuntu-latest' }}
-      templates-ref: topic/hugo-pipeline-refinement
+      templates-ref: main
       hugo-build-flags: "--gc --minify"
       checkout-ref: ""
       debug-hugo-build-state: false
