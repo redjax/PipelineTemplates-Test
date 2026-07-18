@@ -16,7 +16,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Build Go binaries
         uses: redjax/PipelineTemplates/.github/actions/go-build@gh/go-build/v0.0.1
