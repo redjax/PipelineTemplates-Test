@@ -1,0 +1,15 @@
+---
+name: Test Lychee link check
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  check-links:
+    uses: redjax/pipelinetemplates/.github/workflows/lychee-check.yml@main
+    with:
+      offline: false
+      base-url: https://techobyte.cc
+      verbose: "info"
+      fail: true
