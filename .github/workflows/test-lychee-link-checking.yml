@@ -7,7 +7,7 @@ on:
 
 jobs:
   check-links:
-    uses: redjax/pipelinetemplates/.github/workflows/lychee-check.yml@main
+    uses: redjax/pipelinetemplates/.github/workflows/lychee-check.yml@feat/lychee-gh-workflow
     with:
       offline: false
       base-url: https://techobyte.cc
