@@ -2,14 +2,22 @@
 name: Test Lychee link check
 
 on:
-  pull_request:
-    branches: [main]
+  workflow_dispatch:
+    inputs:
+      target-url:
+        description: "URL to check"
+        required: true
+        type: string
+        default: "https://example.com"
+  push:
+    branches:
+      - feat/lychee-link-tests
 
 jobs:
   check-links:
     uses: redjax/pipelinetemplates/.github/workflows/lychee-check.yml@feat/lychee-gh-workflow
     with:
       offline: false
-      base-url: https://techobyte.cc
+      base-url: ${{ inputs.target-url || 'https://example.com' }}
       verbose: "info"
       fail: true
