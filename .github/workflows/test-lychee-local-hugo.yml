@@ -3,7 +3,7 @@
 # Build hugo site using centralized workflow, then check links with lychee #
 ############################################################################
 
-name: Hugo Link Check
+name: Test Lychee Hugo Links Check
 
 on:
   workflow_dispatch:
