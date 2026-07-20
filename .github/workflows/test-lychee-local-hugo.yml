@@ -23,6 +23,10 @@ on:
     branches:
       - feat/lychee-link-tests
 
+permissions:
+  contents: read
+  actions: write
+
 jobs:
   build-site:
     name: Build Hugo Site
