@@ -12,7 +12,7 @@ on:
         description: "Path to Hugo site root"
         required: false
         type: string
-        default: "."
+        default: "apps/hugo-site"
       hugo-version:
         description: "Hugo version"
         required: false
@@ -32,9 +32,9 @@ jobs:
     name: Build Hugo Site
     uses: redjax/pipelinetemplates/.github/workflows/hugo-build.yml@feat/lychee-gh-workflow
     with:
-      site-root: ${{ inputs.site-root || '.' }}
+      site-root: ${{ inputs.site-root || 'apps/hugo-site' }}
       hugo-version: ${{ inputs.hugo-version || '0.161.1' }}
-      public-dir: ${{ inputs.site-root || '.' }}/public
+      public-dir: ${{ inputs.site-root || 'apps/hugo-site' }}/public
       artifact-name: hugo-site
       artifact-retention-days: 1
       build-flags: "--gc --minify"
@@ -46,7 +46,7 @@ jobs:
     uses: redjax/pipelinetemplates/.github/workflows/lychee-check.yml@feat/lychee-gh-workflow
     with:
       offline: true
-      inputs: "public/**/*.html"
+      inputs: "apps/hugo-site/public/**/*.html"
       config-file: .lychee.toml
       exclude: |
         ^mailto:
