@@ -18,6 +18,6 @@ jobs:
     uses: redjax/pipelinetemplates/.github/workflows/lychee-check.yml@feat/lychee-gh-workflow
     with:
       offline: false
-      base-url: ${{ inputs.target-url || 'https://techobyte.cc' }}
+      base-url: ${{ inputs.target-url || 'https://example.com' }}
       verbose: "info"
       fail: true
