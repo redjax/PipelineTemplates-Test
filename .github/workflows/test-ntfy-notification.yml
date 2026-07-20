@@ -166,7 +166,7 @@ jobs:
           echo "Run: ${GITHUB_RUN_NUMBER}" >> reports/report.txt
 
       - name: Upload report artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ntfy-report
           path: reports/report.txt
