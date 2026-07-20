@@ -9,9 +9,6 @@ on:
         required: true
         type: string
         default: "https://example.com"
-  push:
-    branches:
-      - feat/lychee-link-tests
 
 jobs:
   check-links:

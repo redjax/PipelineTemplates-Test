@@ -1,0 +1,59 @@
+---
+############################################################################
+# Build hugo site using centralized workflow, then check links with lychee #
+############################################################################
+
+name: Hugo Link Check
+
+on:
+  workflow_dispatch:
+    inputs:
+      site-root:
+        description: "Path to Hugo site root"
+        required: false
+        type: string
+        default: "."
+      hugo-version:
+        description: "Hugo version"
+        required: false
+        type: string
+        default: "0.161.1"
+
+  push:
+    branches:
+      - feat/lychee-link-tests
+
+jobs:
+  build-site:
+    name: Build Hugo Site
+    uses: redjax/pipelinetemplates/.github/workflows/hugo-build.yml@feat/lychee-gh-workflow
+    with:
+      site-root: ${{ inputs.site-root || '.' }}
+      hugo-version: ${{ inputs.hugo-version || '0.161.1' }}
+      public-dir: ${{ inputs.site-root || '.' }}/public
+      artifact-name: hugo-site
+      artifact-retention-days: 1
+      build-flags: "--gc --minify"
+      use-cache: true
+
+  check-links-offline:
+    name: Check Links (Offline)
+    needs: build-site
+    uses: redjax/pipelinetemplates/.github/workflows/lychee-check.yml@feat/lychee-gh-workflow
+    with:
+      offline: true
+      inputs: "public/**/*.html"
+      config-file: .lychee.toml
+      exclude: |
+        ^mailto:
+        ^tel:
+        ^javascript:
+        ^data:
+        linkedin\.com
+        twitter\.com
+        x\.com
+        facebook\.com
+      include-fragments: false
+      include-verbatim: false
+      accept: "200..=299,429"
+      fail: true
