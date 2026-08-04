@@ -13,3 +13,11 @@ env/
 
 ## Misc
 .ansible/
+
+## Concourse
+.concourse/vars/*
+
+!.concourse/examples/
+!.concourse/examples/**/example*.*
+
+!*.gitkeep
