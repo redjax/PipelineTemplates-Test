@@ -1,8 +1,7 @@
 ---
-#################################################################################
-# Test, build, and release/publish a Go app using the central PipelineTemplates #
-# repository's go-build pipeline.                                               #
-#################################################################################
+###########################################################################
+# Test and build a Go app using the central PipelineTemplates repository. #
+###########################################################################
 
 resources:
   - name: pipelinetemplates
@@ -66,34 +65,3 @@ jobs:
           LDFLAGS: ((ldflags))
           OUTPUT_DIR: ((output_dir))
           CGO_ENABLED: ((cgo_enabled))
-
-  - name: publish-go-app
-    public: true
-    plan:
-      - get: pipelinetemplates
-        trigger: true
-      - get: app
-        passed: [build-go-app]
-        trigger: true
-      - get: go-image
-
-      - task: build
-        image: go-image
-        file: pipelinetemplates/.concourse/go/go-build/tasks/build.yml
-        params:
-          MODULE_DIR: ((module_dir))
-          BUILD_PACKAGE: ((build_package))
-          BINARY_NAME: ((binary_name))
-          PLATFORMS: ((platforms))
-          BUILD_TAGS: ((build_tags))
-          LDFLAGS: ((ldflags))
-          OUTPUT_DIR: ((output_dir))
-          CGO_ENABLED: ((cgo_enabled))
-
-      - task: publish
-        image: go-image
-        file: pipelinetemplates/.concourse/go/go-build/tasks/publish.yml
-        params:
-          MODULE_DIR: ((module_dir))
-          BINARY_NAME: ((binary_name))
-          OUTPUT_DIR: ((output_dir))
