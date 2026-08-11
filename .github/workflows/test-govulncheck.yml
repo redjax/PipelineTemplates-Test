@@ -6,12 +6,11 @@
 name: Test Govulncheck Scan
 
 on:
-  push:
-    branches:
-      - main
-      - feat/test-govulncheck
+  # push:
+  #   branches:
+  #     - main
 
-  pull_request:
+  # pull_request:
   workflow_dispatch:
 
 permissions:
