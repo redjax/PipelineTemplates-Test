@@ -7,7 +7,7 @@ on:
   #   branches:
   #     - main
 
-  ## Temporary testing trigger
+  ## Temporary testing trigger.
   push:
     branches:
       - feat/gh-trivy-scan
