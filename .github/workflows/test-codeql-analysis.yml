@@ -24,7 +24,7 @@ permissions:
 jobs:
   codeql:
     name: CodeQL analysis
-    uses: redjax/PipelineTemplates/.github/workflows/codeql-analysis.yml@feat/gh-codeql-workflow
+    uses: redjax/PipelineTemplates/.github/workflows/codeql-analysis.yml@topic/security-scanners
     with:
       ## Leave empty for autodetection, or add languages like "go,python,..."
       languages: ""
