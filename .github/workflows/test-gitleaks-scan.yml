@@ -2,10 +2,10 @@
 name: Secrets Scan
 
 on:
-  pull_request:
-  push:
-    branches:
-      - main
+  # pull_request:
+  # push:
+  #   branches:
+  #     - main
   schedule:
     ## Every day at 03:00 UTC.
     - cron: "0 3 * * *"
