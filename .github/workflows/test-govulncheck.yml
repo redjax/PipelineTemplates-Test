@@ -1,0 +1,53 @@
+---
+#####################################################################
+# Test GoVulnCheck centralized scanning workflow against this repo. #
+#####################################################################
+
+name: Test Govulncheck Scan
+
+on:
+  push:
+    branches:
+      - main
+      - feat/test-govulncheck
+
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+  security-events: write
+
+jobs:
+  govulncheck:
+    name: Govulncheck
+    uses: redjax/PipelineTemplates/.github/workflows/govulncheck.yml@topic/security-scanners
+
+    with:
+      pipeline-templates-ref: "topic/security-scanners"
+
+      go-version: "stable"
+
+      govulncheck-version: "latest"
+
+      ## Leave commented to use automatic discovery. Otherwise you can pass 1 or more
+      #  paths for govulncheck to scan.
+      #
+      # module-paths: |-
+      #   .
+      #   apps/go-example
+
+      ## Exclude specific paths from scan
+      #
+      # exclude-module-paths: |-
+      #   apps/go-example
+
+      ## Default: "./..." for every discovered module.
+      package-pattern: "./..."
+
+      fail-on-vulnerabilities: true
+
+      sarif-category: "govulncheck"
+
+      artifact-retention-days: 30
