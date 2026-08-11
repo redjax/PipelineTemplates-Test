@@ -1,0 +1,23 @@
+---
+name: TruffleHog Secrets Scan
+
+on:
+  schedule:
+    - cron: "0 2 * * 0"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  trufflehog:
+    uses: redjax/PipelineTemplates/.github/workflows/trufflehog-secret-scan.yml@main
+    with:
+      ## https://github.com/trufflesecurity/trufflehog/releases
+      trufflehog-version: "3.96.0"
+      mode: git
+      source: "."
+      results: "verified"
+      fail-on-findings: true
+      artifact-retention-days: 30
