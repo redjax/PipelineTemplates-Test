@@ -29,9 +29,8 @@ jobs:
       mode: git
       ## Used only with mode: dir.
       source: "."
-      ## A repo-local config file is optional. Set this to "" if this repository
-      #  does not need custom rules or allowlists.
-      config-path: ".gitleaks.toml"
+      ## Optional path to a repo-local .gitleaks.toml config file
+      # config-path: ".gitleaks.toml"
       ## Optional baseline file, such as gitleaks-baseline.json. Set to "" when
       #  this repository has no baseline.
       baseline-path: ""
