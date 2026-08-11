@@ -37,6 +37,14 @@ on:
         type: string
         default: "."
 
+      pipelinetemplates-ref:
+        description: >-
+          PipelineTemplates branch, tag, or commit SHA to check out for shared
+          CI/CD scripts.
+        required: false
+        type: string
+        default: main
+
 permissions:
   contents: read
   security-events: write
@@ -54,3 +62,4 @@ jobs:
       ignore-unfixed: true
       fail-on-findings: ${{ inputs.fail-on-findings || false }}
       artifact-retention-days: 14
+      pipelinetemplates-ref: feat/gh-trivy-scan
