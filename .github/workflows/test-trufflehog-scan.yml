@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   trufflehog:
-    uses: redjax/PipelineTemplates/.github/workflows/trufflehog-secret-scan.yml@feat/trufflehog-security
+    uses: redjax/PipelineTemplates/.github/workflows/trufflehog-secret-scan.yml@main
     with:
       ## https://github.com/trufflesecurity/trufflehog/releases
       trufflehog-version: "3.96.0"
