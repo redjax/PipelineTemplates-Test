@@ -1,7 +1,7 @@
 ---
-###########################################################
-# Test the centralized multi-module Govulncheck workflow. #
-###########################################################
+#####################################################################
+# Test GoVulnCheck centralized scanning workflow against this repo. #
+#####################################################################
 
 name: Test Govulncheck Scan
 
