@@ -22,10 +22,10 @@ permissions:
 jobs:
   govulncheck:
     name: Govulncheck
-    uses: redjax/PipelineTemplates/.github/workflows/govulncheck.yml@feat/gh-govulncheck
+    uses: redjax/PipelineTemplates/.github/workflows/govulncheck.yml@topic/security-scanners
 
     with:
-      pipeline-templates-ref: "feat/gh-govulncheck"
+      pipeline-templates-ref: "topic/security-scanners"
 
       go-version: "stable"
 
