@@ -1,0 +1,45 @@
+---
+##############################################
+# Test centralized CodeQL analysis workflow. #
+##############################################
+
+name: Test CodeQL Analysis
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+  security-events: write
+
+jobs:
+  codeql:
+    name: CodeQL analysis
+    uses: redjax/PipelineTemplates/.github/workflows/codeql-analysis.yml@topic/security-scanners
+    with:
+      ## Leave empty for autodetection, or add languages like "go,python,..."
+      languages: ""
+
+      ## Leave empty for default CodeQL suite, or pass
+      #  a specific query set, i.e. "+security-extended"
+      queries: "+security-extended"
+
+      ## Uncomment and give the pipeline build command(s) to test CodeQL against binaries.
+      # run-build: true
+      # build-commands: |-
+      #   go build ./...
+      #   cd apps/go-example && go build ./...
+
+      upload-sarif: false
+
+      fail-on-error: true
+
+      ## Leave empty to let CodeQL determine the category,
+      #  or give it a manual category, i.e. "codeql-go" or "codeql-python"
+      category: ""
