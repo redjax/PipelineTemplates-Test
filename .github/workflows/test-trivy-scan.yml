@@ -1,0 +1,56 @@
+---
+name: Security Scan
+
+on:
+  # pull_request:
+  # push:
+  #   branches:
+  #     - main
+
+  ## Temporary testing trigger
+  push:
+    branches:
+      - feat/gh-trivy-scan
+
+  schedule:
+    - cron: "0 3 * * 1"
+  workflow_dispatch:
+    inputs:
+      fail-on-findings:
+        description: >-
+          Fail the workflow if Trivy reports findings.
+        required: false
+        type: boolean
+        default: false
+
+      severity:
+        description: >-
+          Comma-separated severity levels to include in the report.
+        required: false
+        type: string
+        default: "HIGH,CRITICAL"
+
+      scan-path:
+        description: >-
+          Repository-relative filesystem path to scan.
+        required: false
+        type: string
+        default: "."
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  trivy:
+    name: Trivy filesystem scan
+    uses: redjax/PipelineTemplates/.github/workflows/trivy-scan.yml@feat/gh-trivy-scan
+    with:
+      trivy-version: "0.68.1"
+      scan-type: filesystem
+      scan-path: ${{ inputs.scan-path || '.' }}
+      scanners: "vuln,secret,misconfig"
+      severity: ${{ inputs.severity || 'HIGH,CRITICAL' }}
+      ignore-unfixed: true
+      fail-on-findings: ${{ inputs.fail-on-findings || false }}
+      artifact-retention-days: 14
