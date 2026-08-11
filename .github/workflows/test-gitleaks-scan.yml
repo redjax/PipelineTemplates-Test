@@ -6,8 +6,6 @@ on:
   push:
     branches:
       - main
-      ## Temporary testing trigger
-      - feat/test-gitleaks-scan
   schedule:
     ## Every day at 03:00 UTC.
     - cron: "0 3 * * *"
