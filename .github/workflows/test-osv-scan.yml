@@ -9,8 +9,6 @@ on:
   push:
     branches:
       - main
-      ## Temporary branch trigger while testing.
-      - feat/test-osv-scan
 
   schedule:
     # Every day at 01:00 UTC.
