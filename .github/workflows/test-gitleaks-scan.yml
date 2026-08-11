@@ -1,0 +1,39 @@
+---
+name: Secrets Scan
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  schedule:
+    ## Every day at 03:00 UTC.
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+  security-events: write
+
+jobs:
+  gitleaks:
+    name: Gitleaks secrets scan
+    uses: redjax/PipelineTemplates/.github/workflows/gitleaks-secret-scan.yml@topic/security-scanners
+    with:
+      ## https://github.com/gitleaks/gitleaks/releases
+      gitleaks-version: "8.30.1"
+      ## "git" scans the complete Git history. "dir" scans the working directory
+      mode: git
+      ## Used only with mode: dir.
+      source: "."
+      ## Optional path to a repo-local .gitleaks.toml config file
+      config-path: ".gitleaks.toml"
+      ## Optional baseline file, such as gitleaks-baseline.json. Set to "" when
+      #  this repository has no baseline.
+      baseline-path: ""
+      ## Block the job if findings are detected.
+      fail-on-findings: true
+      ## Enable only when you use CSV artifacts.
+      generate-csv-report: false
+      artifact-retention-days: 30
