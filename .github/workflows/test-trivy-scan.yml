@@ -54,7 +54,7 @@ jobs:
     name: Trivy filesystem scan
     uses: redjax/PipelineTemplates/.github/workflows/trivy-scan.yml@feat/gh-trivy-scan
     with:
-      trivy-version: "0.68.1"
+      trivy-version: "0.73.0"
       scan-type: filesystem
       scan-path: ${{ inputs.scan-path || '.' }}
       scanners: "vuln,secret,misconfig"
