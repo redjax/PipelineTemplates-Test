@@ -6,9 +6,9 @@
 name: OSV Scan
 
 on:
-  push:
-    branches:
-      - main
+  # push:
+  #   branches:
+  #     - main
 
   schedule:
     # Every day at 01:00 UTC.
