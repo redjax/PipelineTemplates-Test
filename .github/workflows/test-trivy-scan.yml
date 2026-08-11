@@ -52,7 +52,7 @@ permissions:
 jobs:
   trivy:
     name: Trivy filesystem scan
-    uses: redjax/PipelineTemplates/.github/workflows/trivy-scan.yml@feat/gh-trivy-scan
+    uses: redjax/PipelineTemplates/.github/workflows/trivy-scan.yml@main
     with:
       trivy-version: "0.73.0"
       scan-type: filesystem
@@ -62,4 +62,4 @@ jobs:
       ignore-unfixed: true
       fail-on-findings: ${{ inputs.fail-on-findings || false }}
       artifact-retention-days: 14
-      pipelinetemplates-ref: feat/gh-trivy-scan
+      pipelinetemplates-ref: main
