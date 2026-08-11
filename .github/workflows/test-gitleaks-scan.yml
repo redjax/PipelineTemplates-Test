@@ -19,7 +19,7 @@ permissions:
 jobs:
   gitleaks:
     name: Gitleaks secrets scan
-    uses: redjax/PipelineTemplates/.github/workflows/gitleaks-secret-scan.yml@topic/security-scanners
+    uses: redjax/PipelineTemplates/.github/workflows/gitleaks-secret-scan.yml@main
     with:
       ## https://github.com/gitleaks/gitleaks/releases
       gitleaks-version: "8.30.1"
