@@ -1,0 +1,67 @@
+---
+####################################
+# Schedule OSV dependency scanning #
+####################################
+
+name: OSV Scan
+
+on:
+  push:
+    branches:
+      - main
+      ## Temporary branch trigger while testing.
+      - feat/test-osv-scan
+
+  schedule:
+    # Every day at 01:00 UTC.
+    - cron: "0 1 * * *"
+
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+  security-events: write
+
+jobs:
+  osv-scan:
+    name: OSV dependency vulnerability scan
+    uses: redjax/PipelineTemplates/.github/workflows/osv-scan.yml@feat/gh-osv-scan
+
+    with:
+      ## Branch of redjax/PipelineTemplates to checkout
+      pipeline-templates-ref: "feat/gh-osv-scan"
+
+      osv-scanner-version: "2.5.0"
+
+      source: "."
+
+      recursive: true
+
+      ## Uncomment only when this repository contains the referenced file.
+      # config-path: ".osv-scanner.toml"
+
+      ## Resolve transitive dependencies.
+      # no-resolve: true
+
+      ## Default: "info".
+      # verbosity: "debug"
+
+      ## Supply one complete OSV-Scanner argument per line. Do not supply
+      #  --format, --output, or --output-file; the central workflow reserves
+      #  those for SARIF generation and upload.
+      #
+      #  Example: scan one specific lockfile.
+      #
+      #  additional-args: |-
+      #    --lockfile=./go.mod
+      # additional-args: |-
+      #   ...
+
+      ## Fail after report upload if vulnerabilities are found.
+      # fail-on-vulnerabilities: false
+
+      ##  Report category. Default: "osv-scanner".
+      # sarif-category: "osv-scanner-production"
+
+      artifact-retention-days: 30
