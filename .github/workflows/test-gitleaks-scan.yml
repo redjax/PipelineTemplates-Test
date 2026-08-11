@@ -30,7 +30,7 @@ jobs:
       ## Used only with mode: dir.
       source: "."
       ## Optional path to a repo-local .gitleaks.toml config file
-      # config-path: ".gitleaks.toml"
+      config-path: ".gitleaks.toml"
       ## Optional baseline file, such as gitleaks-baseline.json. Set to "" when
       #  this repository has no baseline.
       baseline-path: ""

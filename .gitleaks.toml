@@ -1,0 +1,9 @@
+## Preserve Gitleaks' built-in detection rules.
+[extend]
+useDefault = true
+
+## Intentional non-secret fixture content used by Concourse examples.
+[allowlist]
+description = "Intentional placeholder private-key blocks in example fixtures"
+
+paths = ['''^\.concourse/examples/go-app/example\.go-app\.secrets\.yml$''']
