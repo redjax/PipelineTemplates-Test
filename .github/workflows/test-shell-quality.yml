@@ -1,0 +1,93 @@
+---
+################################################################################
+# Validate the centralized shell-quality orchestration workflow.
+#
+# Fixture expectations:
+#   - shellcheck-only: Runs only ShellCheck against a valid shell fixture.
+#   - shellfmt-only:   Runs only shellfmt against a valid shell fixture.
+#   - both-valid:      Runs both tools against a valid shell fixture.
+#   - both-findings:   Runs both tools against intentional finding fixtures.
+#
+# The both-findings job is non-blocking. Its purpose is to confirm that the
+# shell-quality orchestrator invokes both underlying workflows and produces
+# separate ShellCheck and shellfmt report artifacts.
+################################################################################
+
+name: Test Shell Quality
+
+on:
+  # pull_request:
+  #   paths:
+  #     - ".github/workflows/test-shell-quality.yml"
+  #     - "tests/shell-quality/**"
+
+  push:
+    branches:
+      - feat/test-shellcheck-shellfmt
+    paths:
+      - ".github/workflows/test-shell-quality.yml"
+      - "tests/shell-quality/**"
+
+  workflow_dispatch:
+    inputs:
+      pipelinetemplates-ref:
+        description: >-
+          PipelineTemplates branch, tag, or commit SHA containing the shell
+          quality orchestrator, reusable workflows, scripts, and configuration.
+        required: false
+        type: string
+        default: feat/gh-shellcheck-shellfmt
+
+permissions:
+  contents: read
+
+jobs:
+  shellcheck-only:
+    name: Orchestrator ShellCheck-only fixture
+    uses: redjax/PipelineTemplates/.github/workflows/shell-quality.yml@feat/gh-shellcheck-shellfmt
+    with:
+      pipelinetemplates-ref: ${{ inputs.pipelinetemplates-ref || 'feat/gh-shellcheck-shellfmt' }}
+      tools: shellcheck
+      scan-path: tests/shell-quality/valid
+      fail-on-findings: true
+
+      shellcheck-artifact-name: test-shell-quality-shellcheck-only-results
+      artifact-retention-days: 7
+
+  shellfmt-only:
+    name: Orchestrator shellfmt-only fixture
+    uses: redjax/PipelineTemplates/.github/workflows/shell-quality.yml@feat/gh-shellcheck-shellfmt
+    with:
+      pipelinetemplates-ref: ${{ inputs.pipelinetemplates-ref || 'feat/gh-shellcheck-shellfmt' }}
+      tools: shellfmt
+      scan-path: tests/shell-quality/valid
+      fail-on-findings: true
+
+      shellfmt-artifact-name: test-shell-quality-shellfmt-only-results
+      artifact-retention-days: 7
+
+  both-valid:
+    name: Orchestrator both-tools valid fixture
+    uses: redjax/PipelineTemplates/.github/workflows/shell-quality.yml@feat/gh-shellcheck-shellfmt
+    with:
+      pipelinetemplates-ref: ${{ inputs.pipelinetemplates-ref || 'feat/gh-shellcheck-shellfmt' }}
+      tools: both
+      scan-path: tests/shell-quality/valid
+      fail-on-findings: true
+
+      shellcheck-artifact-name: test-shell-quality-both-valid-shellcheck-results
+      shellfmt-artifact-name: test-shell-quality-both-valid-shellfmt-results
+      artifact-retention-days: 7
+
+  both-findings:
+    name: Orchestrator both-tools finding fixtures
+    uses: redjax/PipelineTemplates/.github/workflows/shell-quality.yml@feat/gh-shellcheck-shellfmt
+    with:
+      pipelinetemplates-ref: ${{ inputs.pipelinetemplates-ref || 'feat/gh-shellcheck-shellfmt' }}
+      tools: both
+      scan-path: tests/shell-quality
+      fail-on-findings: false
+
+      shellcheck-artifact-name: test-shell-quality-both-findings-shellcheck-results
+      shellfmt-artifact-name: test-shell-quality-both-findings-shellfmt-results
+      artifact-retention-days: 7
