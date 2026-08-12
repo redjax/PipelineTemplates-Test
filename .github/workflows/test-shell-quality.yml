@@ -66,7 +66,7 @@ jobs:
       tools: both
       scan-path: tests/shell-quality
       shellfmt-mode: check
-      fail-on-findings: false
+      fail-on-findings: true
       artifact-retention-days: 7
       shellcheck-artifact-name: test-shell-quality-both-findings-shellcheck
       shellfmt-artifact-name: test-shell-quality-both-findings-shellfmt

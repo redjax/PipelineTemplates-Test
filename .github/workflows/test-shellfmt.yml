@@ -38,6 +38,6 @@ jobs:
       pipelinetemplates-ref: feat/gh-shellcheck-shellfmt
       scan-path: tests/shell-quality/shellfmt
       mode: check
-      fail-on-findings: false
+      fail-on-findings: true
       artifact-name: test-shellfmt-finding-results
       artifact-retention-days: 7
