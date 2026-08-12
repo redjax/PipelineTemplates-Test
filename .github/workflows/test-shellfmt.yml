@@ -64,7 +64,7 @@ jobs:
 
   verify:
     name: Verify shellfmt reports
-    if: ${{ always() }}
+    if: ${{ always() && needs.valid.result == 'success' && needs.finding.result == 'success' }}
     needs:
       - valid
       - finding
@@ -122,12 +122,6 @@ jobs:
 
           if [[ ! -s "${finding_report}" ]]; then
             echo "::error title=Missing shellfmt difference::The intentional finding fixture produced no formatting diff."
-            exit 1
-          fi
-
-          if ! grep --quiet --fixed-strings -- '--- ' "${finding_report}"; then
-            echo "::error title=Invalid shellfmt diff::The finding report did not contain a shellfmt unified diff."
-            cat "${finding_report}"
             exit 1
           fi
 

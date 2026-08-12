@@ -65,7 +65,7 @@ jobs:
 
   verify:
     name: Verify ShellCheck reports
-    if: ${{ always() }}
+    if: ${{ always() && needs.valid.result == 'success' && needs.finding.result == 'success' }}
     needs:
       - valid
       - finding
