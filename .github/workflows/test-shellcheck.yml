@@ -1,0 +1,42 @@
+---
+#################################################################################
+# Validate the centralized ShellCheck reusable workflow                         #
+#                                                                               #
+# Fixture expectations:                                                         #
+#   - valid:   Reports zero ShellCheck findings and succeeds.                   #
+#   - finding: Reports one or more intentional ShellCheck findings but succeeds #
+#              because fail-on-findings is disabled for the test fixture.       #
+#################################################################################
+
+name: Test ShellCheck
+
+on:
+  # pull_request:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - ".github/workflows/test-shellcheck.yml"
+  #     - "tests/shell-quality/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  valid:
+    uses: redjax/PipelineTemplates/.github/workflows/shellcheck.yml@main
+    with:
+      pipelinetemplates-ref: main
+      scan-path: tests/shell-quality/valid
+      fail-on-findings: true
+      artifact-name: test-shellcheck-valid-results
+      artifact-retention-days: 7
+
+  finding:
+    uses: redjax/PipelineTemplates/.github/workflows/shellcheck.yml@main
+    with:
+      pipelinetemplates-ref: main
+      scan-path: tests/shell-quality/shellcheck
+      fail-on-findings: true
+      artifact-name: test-shellcheck-finding-results
+      artifact-retention-days: 7

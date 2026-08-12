@@ -1,0 +1,43 @@
+---
+#############################################################################
+# Validate the centralized shellfmt reusable workflow                       #
+#                                                                           #
+# Fixture expectations:                                                     #
+#   - valid:   Produces an empty shellfmt diff and succeeds.                #
+#   - finding: Produces a shellfmt diff containing one or more differences. #
+#############################################################################
+
+name: Test shellfmt
+
+on:
+  # pull_request:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - ".github/workflows/test-shellfmt.yml"
+  #     - "tests/shell-quality/**"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  valid:
+    uses: redjax/PipelineTemplates/.github/workflows/shellfmt.yml@main
+    with:
+      pipelinetemplates-ref: main
+      scan-path: tests/shell-quality/valid
+      mode: check
+      fail-on-findings: true
+      artifact-name: test-shellfmt-valid-results
+      artifact-retention-days: 7
+
+  finding:
+    uses: redjax/PipelineTemplates/.github/workflows/shellfmt.yml@main
+    with:
+      pipelinetemplates-ref: main
+      scan-path: tests/shell-quality/shellfmt
+      mode: check
+      fail-on-findings: true
+      artifact-name: test-shellfmt-finding-results
+      artifact-retention-days: 7
