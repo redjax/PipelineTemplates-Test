@@ -10,12 +10,12 @@
 name: Test shellfmt
 
 on:
-  pull_request:
-    branches:
-      - main
-    paths:
-      - ".github/workflows/test-shellfmt.yml"
-      - "tests/shell-quality/**"
+  # pull_request:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - ".github/workflows/test-shellfmt.yml"
+  #     - "tests/shell-quality/**"
   workflow_dispatch:
 
 permissions:

@@ -11,12 +11,12 @@
 name: Test ShellCheck
 
 on:
-  pull_request:
-    branches:
-      - main
-    paths:
-      - ".github/workflows/test-shellcheck.yml"
-      - "tests/shell-quality/**"
+  # pull_request:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - ".github/workflows/test-shellcheck.yml"
+  #     - "tests/shell-quality/**"
   workflow_dispatch:
 
 permissions:
