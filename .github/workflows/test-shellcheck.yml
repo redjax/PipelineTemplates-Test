@@ -11,120 +11,32 @@
 name: Test ShellCheck
 
 on:
-  # pull_request:
-  #   paths:
-  #     - ".github/workflows/test-shellcheck.yml"
-  #     - "tests/shell-quality/**"
-
   push:
     branches:
       - feat/test-shellcheck-shellfmt
     paths:
       - ".github/workflows/test-shellcheck.yml"
       - "tests/shell-quality/**"
-
   workflow_dispatch:
-    inputs:
-      pipelinetemplates-ref:
-        description: >-
-          PipelineTemplates branch, tag, or commit SHA containing the ShellCheck
-          workflow, shared scripts, and central configuration.
-        required: false
-        type: string
-        default: feat/gh-shellcheck-shellfmt
 
 permissions:
-  actions: read
   contents: read
 
 jobs:
   valid:
-    name: ShellCheck valid fixture
     uses: redjax/PipelineTemplates/.github/workflows/shellcheck.yml@feat/gh-shellcheck-shellfmt
     with:
-      pipelinetemplates-ref: ${{ inputs.pipelinetemplates-ref || 'feat/gh-shellcheck-shellfmt' }}
+      pipelinetemplates-ref: feat/gh-shellcheck-shellfmt
       scan-path: tests/shell-quality/valid
       fail-on-findings: true
       artifact-name: test-shellcheck-valid-results
       artifact-retention-days: 7
 
   finding:
-    name: ShellCheck intentional finding
     uses: redjax/PipelineTemplates/.github/workflows/shellcheck.yml@feat/gh-shellcheck-shellfmt
     with:
-      pipelinetemplates-ref: ${{ inputs.pipelinetemplates-ref || 'feat/gh-shellcheck-shellfmt' }}
+      pipelinetemplates-ref: feat/gh-shellcheck-shellfmt
       scan-path: tests/shell-quality/shellcheck
-
-      ## The fixture intentionally contains an unquoted variable expansion.
-      #  Keep the reusable-workflow job successful so this test can inspect its
-      #  generated report artifact.
       fail-on-findings: false
-
       artifact-name: test-shellcheck-finding-results
       artifact-retention-days: 7
-
-  verify:
-    name: Inspect ShellCheck reports
-    if: ${{ always() }}
-    needs:
-      - valid
-      - finding
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Download valid-fixture report
-        continue-on-error: true
-        uses: actions/download-artifact@v4
-        with:
-          name: test-shellcheck-valid-results
-          path: artifacts/valid
-
-      - name: Download finding-fixture report
-        continue-on-error: true
-        uses: actions/download-artifact@v4
-        with:
-          name: test-shellcheck-finding-results
-          path: artifacts/finding
-
-      - name: Inspect ShellCheck reports
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          valid_report="$(
-            find artifacts/valid \
-              -type f \
-              -name shellcheck.txt \
-              -print \
-              -quit \
-              2>/dev/null \
-              || true
-          )"
-
-          finding_report="$(
-            find artifacts/finding \
-              -type f \
-              -name shellcheck.txt \
-              -print \
-              -quit \
-              2>/dev/null \
-              || true
-          )"
-
-          if [[ -z "${valid_report}" ]]; then
-            echo "::notice title=ShellCheck valid report unavailable::No valid-fixture ShellCheck report was available for inspection."
-          elif [[ -s "${valid_report}" ]]; then
-            echo "::warning title=ShellCheck valid fixture report::The valid fixture report contains output."
-            cat "${valid_report}"
-          else
-            echo "::notice title=ShellCheck valid fixture::The valid fixture report is empty."
-          fi
-
-          if [[ -z "${finding_report}" ]]; then
-            echo "::notice title=ShellCheck finding report unavailable::No finding-fixture ShellCheck report was available for inspection."
-          elif [[ -s "${finding_report}" ]]; then
-            echo "::notice title=ShellCheck intentional finding report::The finding fixture produced ShellCheck output."
-            cat "${finding_report}"
-          else
-            echo "::notice title=ShellCheck intentional finding fixture::The fixture did not produce ShellCheck output under the current central configuration."
-          fi
