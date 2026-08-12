@@ -9,9 +9,10 @@
 set -euo pipefail
 
 function main() {
-if true; then
-echo "This file should cause shellfmt to produce a diff."
-fi
+    if true; then
+      printf '%s\n' "This fixture must produce a shellfmt diff."
+        fi
 }
+
 
 main "$@"
