@@ -29,18 +29,18 @@ permissions:
 
 jobs:
   shellcheck-only:
-    uses: redjax/PipelineTemplates/.github/workflows/shell-quality.yml@feat/gh-shellcheck-shellfmt
+    uses: redjax/PipelineTemplates/.github/workflows/shell-quality.yml@main
     with:
-      pipelinetemplates-ref: feat/gh-shellcheck-shellfmt
+      pipelinetemplates-ref: main
       tools: shellcheck
       scan-path: tests/shell-quality/valid
       fail-on-findings: true
       artifact-retention-days: 7
 
   shellfmt-only:
-    uses: redjax/PipelineTemplates/.github/workflows/shell-quality.yml@feat/gh-shellcheck-shellfmt
+    uses: redjax/PipelineTemplates/.github/workflows/shell-quality.yml@main
     with:
-      pipelinetemplates-ref: feat/gh-shellcheck-shellfmt
+      pipelinetemplates-ref: main
       tools: shellfmt
       scan-path: tests/shell-quality/valid
       shellfmt-mode: check
@@ -48,9 +48,9 @@ jobs:
       artifact-retention-days: 7
 
   both-valid:
-    uses: redjax/PipelineTemplates/.github/workflows/shell-quality.yml@feat/gh-shellcheck-shellfmt
+    uses: redjax/PipelineTemplates/.github/workflows/shell-quality.yml@main
     with:
-      pipelinetemplates-ref: feat/gh-shellcheck-shellfmt
+      pipelinetemplates-ref: main
       tools: both
       scan-path: tests/shell-quality/valid
       shellfmt-mode: check
@@ -60,9 +60,9 @@ jobs:
       shellfmt-artifact-name: test-shell-quality-both-valid-shellfmt
 
   both-findings:
-    uses: redjax/PipelineTemplates/.github/workflows/shell-quality.yml@feat/gh-shellcheck-shellfmt
+    uses: redjax/PipelineTemplates/.github/workflows/shell-quality.yml@main
     with:
-      pipelinetemplates-ref: feat/gh-shellcheck-shellfmt
+      pipelinetemplates-ref: main
       tools: both
       scan-path: tests/shell-quality
       shellfmt-mode: check
