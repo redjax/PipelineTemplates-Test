@@ -10,120 +10,34 @@
 name: Test shellfmt
 
 on:
-  # pull_request:
-  #   paths:
-  #     - ".github/workflows/test-shellfmt.yml"
-  #     - "tests/shell-quality/**"
-
   push:
     branches:
       - feat/test-shellcheck-shellfmt
     paths:
       - ".github/workflows/test-shellfmt.yml"
       - "tests/shell-quality/**"
-
   workflow_dispatch:
-    inputs:
-      pipelinetemplates-ref:
-        description: >-
-          PipelineTemplates branch, tag, or commit SHA containing the shellfmt
-          workflow, shared scripts, and central configuration.
-        required: false
-        type: string
-        default: feat/gh-shellcheck-shellfmt
 
 permissions:
-  actions: read
-  contents: read
+  contents: write
 
 jobs:
   valid:
-    name: shellfmt valid fixture
     uses: redjax/PipelineTemplates/.github/workflows/shellfmt.yml@feat/gh-shellcheck-shellfmt
     with:
-      pipelinetemplates-ref: ${{ inputs.pipelinetemplates-ref || 'feat/gh-shellcheck-shellfmt' }}
+      pipelinetemplates-ref: feat/gh-shellcheck-shellfmt
       scan-path: tests/shell-quality/valid
+      mode: check
       fail-on-findings: true
       artifact-name: test-shellfmt-valid-results
       artifact-retention-days: 7
 
   finding:
-    name: shellfmt intentional finding
     uses: redjax/PipelineTemplates/.github/workflows/shellfmt.yml@feat/gh-shellcheck-shellfmt
     with:
-      pipelinetemplates-ref: ${{ inputs.pipelinetemplates-ref || 'feat/gh-shellcheck-shellfmt' }}
+      pipelinetemplates-ref: feat/gh-shellcheck-shellfmt
       scan-path: tests/shell-quality/shellfmt
-
-      ## The fixture intentionally violates central shellfmt options.
-      #  Keep the reusable-workflow job successful so this test can inspect its
-      #  generated diff artifact.
+      mode: check
       fail-on-findings: false
-
       artifact-name: test-shellfmt-finding-results
       artifact-retention-days: 7
-
-  verify:
-    name: Inspect shellfmt reports
-    if: ${{ always() }}
-    needs:
-      - valid
-      - finding
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Download valid-fixture report
-        continue-on-error: true
-        uses: actions/download-artifact@v4
-        with:
-          name: test-shellfmt-valid-results
-          path: artifacts/valid
-
-      - name: Download finding-fixture report
-        continue-on-error: true
-        uses: actions/download-artifact@v4
-        with:
-          name: test-shellfmt-finding-results
-          path: artifacts/finding
-
-      - name: Inspect shellfmt reports
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          valid_report="$(
-            find artifacts/valid \
-              -type f \
-              -name shellfmt.diff \
-              -print \
-              -quit \
-              2>/dev/null \
-              || true
-          )"
-
-          finding_report="$(
-            find artifacts/finding \
-              -type f \
-              -name shellfmt.diff \
-              -print \
-              -quit \
-              2>/dev/null \
-              || true
-          )"
-
-          if [[ -z "${valid_report}" ]]; then
-            echo "::notice title=shellfmt valid report unavailable::No valid-fixture shellfmt report was available for inspection."
-          elif [[ -s "${valid_report}" ]]; then
-            echo "::warning title=shellfmt valid fixture report::The valid fixture report contains formatting differences."
-            cat "${valid_report}"
-          else
-            echo "::notice title=shellfmt valid fixture::The valid fixture report is empty."
-          fi
-
-          if [[ -z "${finding_report}" ]]; then
-            echo "::notice title=shellfmt finding report unavailable::No finding-fixture shellfmt report was available for inspection."
-          elif [[ -s "${finding_report}" ]]; then
-            echo "::notice title=shellfmt intentional finding report::The finding fixture produced a shellfmt diff."
-            cat "${finding_report}"
-          else
-            echo "::notice title=shellfmt intentional finding fixture::The fixture did not produce a shellfmt diff under the current central configuration."
-          fi
