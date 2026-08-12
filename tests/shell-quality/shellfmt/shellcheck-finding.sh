@@ -2,9 +2,11 @@
 set -euo pipefail
 
 function main() {
-  value="Hello from ShellCheck"
+  source_file="source file"
+  destination_file="destination file"
 
-  echo $value
+  # Intentionally unquoted expansions for the ShellCheck test fixture.
+  cp $source_file $destination_file
 }
 
 main "$@"
