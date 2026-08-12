@@ -10,9 +10,9 @@
 name: Test shellfmt
 
 on:
-  push:
+  pull_request:
     branches:
-      - feat/test-shellcheck-shellfmt
+      - main
     paths:
       - ".github/workflows/test-shellfmt.yml"
       - "tests/shell-quality/**"

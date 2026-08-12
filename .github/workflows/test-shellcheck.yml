@@ -11,9 +11,9 @@
 name: Test ShellCheck
 
 on:
-  push:
+  pull_request:
     branches:
-      - feat/test-shellcheck-shellfmt
+      - main
     paths:
       - ".github/workflows/test-shellcheck.yml"
       - "tests/shell-quality/**"
