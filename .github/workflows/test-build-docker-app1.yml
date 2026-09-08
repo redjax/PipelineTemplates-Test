@@ -16,35 +16,40 @@ on:
         type: boolean
         default: true
 
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: redjax/pipelinetemplates-test-app1
+permissions:
+  contents: read
+  packages: write
 
 jobs:
   build-and-publish:
     name: Build app1
-    runs-on: ubuntu-latest
 
     permissions:
       contents: read
       packages: write
 
-    steps:
-      - name: Build app1
-        uses: redjax/PipelineTemplates/.github/actions/docker-build-publish@feat/docker-gh-publish
-        with:
-          context: containers/app1
-          dockerfile: containers/app1/Dockerfile
-          image_name: ${{ env.IMAGE_NAME }}
-          tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ inputs.tag }}
-          push: ${{ inputs.push && 'true' || 'false' }}
-          platforms: linux/amd64
-          build_args: |
-            GIT_SHA=${{ github.sha }}
-            BUILD_DATE=${{ github.run_id }}
-          cache_from: ""
-          cache_to: ""
-          registry: ${{ env.REGISTRY }}
-          registry_username: ${{ github.actor }}
-          registry_password: ${{ secrets.GITHUB_TOKEN }}
+    uses: redjax/PipelineTemplates/.github/workflows/docker-build-publish.yml@feat/docker-gh-publish
+    with:
+      context: containers/app1
+      dockerfile: containers/app1/Dockerfile
+      image: ghcr.io/redjax/pipelinetemplates-test-app1
+      tags: |
+        ghcr.io/redjax/pipelinetemplates-test-app1:${{ inputs.tag }}
+        ghcr.io/redjax/pipelinetemplates-test-app1:run-${{ github.run_id }}
+      platforms: linux/amd64
+      build_args: |
+        GIT_SHA=${{ github.sha }}
+        BUILD_DATE=${{ github.run_id }}
+      labels: |
+        org.opencontainers.image.source=https://github.com/${{ github.repository }}
+        org.opencontainers.image.revision=${{ github.sha }}
+      pull: true
+      no_cache: false
+      cache_from: type=gha,scope=pipelinetemplates-test-app1
+      cache_to: type=gha,mode=max,scope=pipelinetemplates-test-app1
+      secrets: ""
+      outputs: ""
+      annotations: ""
+      publish: ${{ inputs.push }}
+    secrets:
+      registry-token: ${{ secrets.GITHUB_TOKEN }}

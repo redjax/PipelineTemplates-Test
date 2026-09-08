@@ -11,21 +11,35 @@ on:
         default: true
 
       platforms:
-        description: "Comma-separated target platforms (ex: linux/amd64,linux/arm64,linux/arm/v7,windows/amd64,windows/arm64,darwin/amd64,darwin/arm64,linux/riscv64)"
+        description: Comma-separated target platforms
         required: false
         type: string
-        default: linux/amd64
+        default: linux/amd64,linux/arm64
+
+      no_cache:
+        description: Disable Docker build cache
+        required: false
+        type: boolean
+        default: false
+
+      target:
+        description: Optional Dockerfile build target
+        required: false
+        type: string
+        default: ""
 
 permissions:
   contents: read
   packages: write
 
-env:
-  REGISTRY: ghcr.io
-
 jobs:
   build-matrix:
     name: Build Docker matrix
+
+    permissions:
+      contents: read
+      packages: write
+
     uses: redjax/PipelineTemplates/.github/workflows/docker-build-matrix.yml@feat/docker-gh-publish
     with:
       publish: ${{ inputs.push }}
@@ -40,11 +54,16 @@ jobs:
             "registry_username": "${{ github.actor }}",
             "tags": "ghcr.io/redjax/pipelinetemplates-test-app1:run-${{ github.run_id }}\nghcr.io/redjax/pipelinetemplates-test-app1:latest",
             "build_args": "GIT_SHA=${{ github.sha }}\nBUILD_DATE=${{ github.run_id }}",
-            "labels": "",
-            "target": "",
+            "labels": "org.opencontainers.image.source=https://github.com/${{ github.repository }}\norg.opencontainers.image.revision=${{ github.sha }}",
+            "target": "${{ inputs.target }}",
             "pull": true,
-            "publish": ${{ inputs.push }},
-            "cache_scope": "pipelinetemplates-test-app1"
+            "no_cache": ${{ inputs.no_cache }},
+            "cache_from": "type=gha,scope=pipelinetemplates-test-app1",
+            "cache_to": "type=gha,mode=max,scope=pipelinetemplates-test-app1",
+            "secrets": "",
+            "outputs": "",
+            "annotations": "",
+            "publish": ${{ inputs.push }}
           },
           {
             "name": "app2",
@@ -55,11 +74,16 @@ jobs:
             "registry_username": "${{ github.actor }}",
             "tags": "ghcr.io/redjax/pipelinetemplates-test-app2:run-${{ github.run_id }}\nghcr.io/redjax/pipelinetemplates-test-app2:latest",
             "build_args": "GIT_SHA=${{ github.sha }}\nBUILD_DATE=${{ github.run_id }}",
-            "labels": "",
-            "target": "",
+            "labels": "org.opencontainers.image.source=https://github.com/${{ github.repository }}\norg.opencontainers.image.revision=${{ github.sha }}",
+            "target": "${{ inputs.target }}",
             "pull": true,
-            "publish": ${{ inputs.push }},
-            "cache_scope": "pipelinetemplates-test-app2"
+            "no_cache": ${{ inputs.no_cache }},
+            "cache_from": "type=gha,scope=pipelinetemplates-test-app2",
+            "cache_to": "type=gha,mode=max,scope=pipelinetemplates-test-app2",
+            "secrets": "",
+            "outputs": "",
+            "annotations": "",
+            "publish": ${{ inputs.push }}
           }
         ]
     secrets:

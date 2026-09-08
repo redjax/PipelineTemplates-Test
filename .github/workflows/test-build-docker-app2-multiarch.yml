@@ -22,36 +22,41 @@ on:
         type: boolean
         default: true
 
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: redjax/pipelinetemplates-test-app2
+permissions:
+  contents: read
+  packages: write
 
 jobs:
   build-and-publish:
     name: Build app2 multi-arch image
-    runs-on: ubuntu-latest
 
     permissions:
       contents: read
       packages: write
 
-    steps:
-      - name: Build and publish app2
-        uses: redjax/PipelineTemplates/.github/actions/docker-build-publish@feat/docker-gh-publish
-        with:
-          context: containers/app2
-          dockerfile: containers/app2/Dockerfile
-          image_name: ${{ env.IMAGE_NAME }}
-          tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ inputs.tag }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}
-          push: ${{ inputs.push && 'true' || 'false' }}
-          platforms: ${{ inputs.platforms }}
-          build_args: |
-            GIT_SHA=${{ github.sha }}
-            BUILD_DATE=${{ github.run_id }}
-          cache_from: ""
-          cache_to: ""
-          registry: ${{ env.REGISTRY }}
-          registry_username: ${{ github.actor }}
-          registry_password: ${{ secrets.GITHUB_TOKEN }}
+    uses: redjax/PipelineTemplates/.github/workflows/docker-build-publish.yml@feat/docker-gh-publish
+    with:
+      context: containers/app2
+      dockerfile: containers/app2/Dockerfile
+      image: ghcr.io/redjax/pipelinetemplates-test-app2
+      tags: |
+        ghcr.io/redjax/pipelinetemplates-test-app2:${{ inputs.tag }}
+        ghcr.io/redjax/pipelinetemplates-test-app2:sha-${{ github.sha }}
+        ghcr.io/redjax/pipelinetemplates-test-app2:run-${{ github.run_id }}
+      platforms: ${{ inputs.platforms }}
+      build_args: |
+        GIT_SHA=${{ github.sha }}
+        BUILD_DATE=${{ github.run_id }}
+      labels: |
+        org.opencontainers.image.source=https://github.com/${{ github.repository }}
+        org.opencontainers.image.revision=${{ github.sha }}
+      pull: true
+      no_cache: false
+      cache_from: type=gha,scope=pipelinetemplates-test-app2
+      cache_to: type=gha,mode=max,scope=pipelinetemplates-test-app2
+      secrets: ""
+      outputs: ""
+      annotations: ""
+      publish: ${{ inputs.push }}
+    secrets:
+      registry-token: ${{ secrets.GITHUB_TOKEN }}
