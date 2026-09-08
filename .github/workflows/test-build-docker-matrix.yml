@@ -1,0 +1,62 @@
+---
+name: Test Docker matrix build
+
+on:
+  workflow_dispatch:
+    inputs:
+      push:
+        description: Push images to GHCR
+        required: false
+        type: boolean
+        default: true
+
+      platforms:
+        description: Comma-separated target platforms
+        required: false
+        type: string
+        default: linux/amd64
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  build-matrix:
+    name: Build Docker matrix
+    uses: redjax/PipelineTemplates/.github/workflows/docker-build-matrix.yml@feat/docker-gh-publish
+    with:
+      publish: ${{ inputs.push }}
+      matrix: |
+        [
+          {
+            "name": "app1",
+            "context": "containers/app1",
+            "dockerfile": "containers/app1/Dockerfile",
+            "platforms": "${{ inputs.platforms }}",
+            "registry": "ghcr.io",
+            "registry_username": "${{ github.actor }}",
+            "tags": "ghcr.io/redjax/pipelinetemplates-test-app1:run-${{ github.run_id }}\nghcr.io/redjax/pipelinetemplates-test-app1:latest",
+            "build_args": "GIT_SHA=${{ github.sha }}\nBUILD_DATE=${{ github.run_id }}",
+            "labels": "",
+            "target": "",
+            "pull": true,
+            "publish": ${{ inputs.push }},
+            "cache_scope": "pipelinetemplates-test-app1"
+          },
+          {
+            "name": "app2",
+            "context": "containers/app2",
+            "dockerfile": "containers/app2/Dockerfile",
+            "platforms": "${{ inputs.platforms }}",
+            "registry": "ghcr.io",
+            "registry_username": "${{ github.actor }}",
+            "tags": "ghcr.io/redjax/pipelinetemplates-test-app2:run-${{ github.run_id }}\nghcr.io/redjax/pipelinetemplates-test-app2:latest",
+            "build_args": "GIT_SHA=${{ github.sha }}\nBUILD_DATE=${{ github.run_id }}",
+            "labels": "",
+            "target": "",
+            "pull": true,
+            "publish": ${{ inputs.push }},
+            "cache_scope": "pipelinetemplates-test-app2"
+          }
+        ]
+    secrets:
+      registry-token: ${{ secrets.GITHUB_TOKEN }}

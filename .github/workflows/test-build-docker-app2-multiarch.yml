@@ -5,17 +5,19 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Base tag to use"
+        description: Base image tag to use
         required: false
         type: string
-        default: "latest"
+        default: latest
+
       platforms:
-        description: "Comma-separated platforms"
+        description: Comma-separated target platforms
         required: false
         type: string
-        default: "linux/amd64,linux/arm64"
+        default: linux/amd64,linux/arm64
+
       push:
-        description: "Push image to registry"
+        description: Push image to registry
         required: false
         type: boolean
         default: true
@@ -26,26 +28,28 @@ env:
 
 jobs:
   build-and-publish:
+    name: Build app2 multi-arch image
     runs-on: ubuntu-latest
+
     permissions:
       contents: read
       packages: write
 
     steps:
-      - name: Build and publish app2 (multi-arch)
-        uses: redjax/PipelineTemplates/.github/actions/docker-build-publish@gh/docker-build-publish/v0.0.1
+      - name: Build and publish app2
+        uses: redjax/PipelineTemplates/.github/actions/docker-build-publish@feat/docker-gh-publish
         with:
           context: containers/app2
           dockerfile: containers/app2/Dockerfile
           image_name: ${{ env.IMAGE_NAME }}
           tags: |
-            ghcr.io/${{ env.IMAGE_NAME }}:${{ inputs.tag }}
-            ghcr.io/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ inputs.tag }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}
           push: ${{ inputs.push && 'true' || 'false' }}
           platforms: ${{ inputs.platforms }}
           build_args: |
             GIT_SHA=${{ github.sha }}
-            BUILD_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+            BUILD_DATE=${{ github.run_id }}
           cache_from: ""
           cache_to: ""
           registry: ${{ env.REGISTRY }}

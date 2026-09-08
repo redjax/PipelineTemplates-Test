@@ -1,5 +1,5 @@
 ---
-name: Test Docker build (no push)
+name: Test Docker build without push
 
 on:
   workflow_dispatch:
@@ -10,24 +10,27 @@ env:
 
 jobs:
   build-only:
+    name: Build app1 without publishing
     runs-on: ubuntu-latest
+
     permissions:
       contents: read
       packages: write
 
     steps:
       - name: Build app1 without publishing
-        uses: redjax/PipelineTemplates/.github/actions/docker-build-publish@gh/docker-build-publish/v0.0.1
+        uses: redjax/PipelineTemplates/.github/actions/docker-build-publish@feat/docker-gh-publish
         with:
           context: containers/app1
           dockerfile: containers/app1/Dockerfile
           image_name: ${{ env.IMAGE_NAME }}
           tags: |
-            pr-${{ github.event.pull_request.number }}
-          push: "false" # just build, don't push
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:run-${{ github.run_id }}
+          push: "false"
           platforms: linux/amd64
           build_args: |
             GIT_SHA=${{ github.sha }}
+            BUILD_DATE=${{ github.run_id }}
           cache_from: ""
           cache_to: ""
           registry: ${{ env.REGISTRY }}
