@@ -4,17 +4,68 @@ name: Test Docker build and push to GHCR
 on:
   workflow_dispatch:
     inputs:
+      context:
+        description: Docker build context
+        required: false
+        type: string
+        default: containers/app1
+
+      dockerfile:
+        description: Path to the Dockerfile
+        required: false
+        type: string
+        default: containers/app1/Dockerfile
+
+      image:
+        description: Fully qualified image name
+        required: true
+        type: string
+        default: ghcr.io/redjax/pipelinetemplates-test-app1
+
       tag:
-        description: Image tag to use
+        description: Image tag
         required: false
         type: string
         default: latest
 
+      platforms:
+        description: Comma-separated target platforms
+        required: false
+        type: string
+        default: linux/amd64
+
       push:
-        description: Push image to registry
+        description: Push image to GHCR
         required: false
         type: boolean
         default: true
+
+      pull:
+        description: Always pull base images
+        required: false
+        type: boolean
+        default: true
+
+      no_cache:
+        description: Disable Docker build cache
+        required: false
+        type: boolean
+        default: false
+
+      target:
+        description: Optional Dockerfile build target
+        required: false
+        type: string
+        default: ""
+
+      cache_mode:
+        description: GitHub Actions cache mode
+        required: false
+        type: choice
+        options:
+          - max
+          - min
+        default: max
 
 permissions:
   contents: read
@@ -30,23 +81,24 @@ jobs:
 
     uses: redjax/PipelineTemplates/.github/workflows/docker-build-publish.yml@feat/docker-gh-publish
     with:
-      context: containers/app1
-      dockerfile: containers/app1/Dockerfile
-      image: ghcr.io/redjax/pipelinetemplates-test-app1
+      context: ${{ inputs.context }}
+      dockerfile: ${{ inputs.dockerfile }}
+      image: ${{ inputs.image }}
       tags: |
-        ghcr.io/redjax/pipelinetemplates-test-app1:${{ inputs.tag }}
-        ghcr.io/redjax/pipelinetemplates-test-app1:run-${{ github.run_id }}
-      platforms: linux/amd64
+        ${{ inputs.image }}:${{ inputs.tag }}
+        ${{ inputs.image }}:run-${{ github.run_id }}
+      platforms: ${{ inputs.platforms }}
       build_args: |
         GIT_SHA=${{ github.sha }}
         BUILD_DATE=${{ github.run_id }}
       labels: |
         org.opencontainers.image.source=https://github.com/${{ github.repository }}
         org.opencontainers.image.revision=${{ github.sha }}
-      pull: true
-      no_cache: false
+      target: ${{ inputs.target }}
+      pull: ${{ inputs.pull }}
+      no_cache: ${{ inputs.no_cache }}
       cache_from: type=gha,scope=pipelinetemplates-test-app1
-      cache_to: type=gha,mode=max,scope=pipelinetemplates-test-app1
+      cache_to: type=gha,mode=${{ inputs.cache_mode }},scope=pipelinetemplates-test-app1
       secrets: ""
       outputs: ""
       annotations: ""
