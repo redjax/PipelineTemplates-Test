@@ -43,6 +43,9 @@ jobs:
     uses: redjax/PipelineTemplates/.github/workflows/docker-build-matrix.yml@feat/docker-gh-publish
     with:
       publish: ${{ inputs.push }}
+      ## Define build matrix to send to central pipeline.
+      #  The difficult parsing is handled centrally, you only need
+      #  to provide JSON objects telling it how to build.
       matrix: |
         [
           {
@@ -57,13 +60,13 @@ jobs:
             "labels": "org.opencontainers.image.source=https://github.com/${{ github.repository }}\norg.opencontainers.image.revision=${{ github.sha }}",
             "target": "${{ inputs.target }}",
             "pull": true,
-            "no_cache": ${{ inputs.no_cache }},
+            "no_cache": ${{ toJSON(inputs.no_cache) }},
             "cache_from": "type=gha,scope=pipelinetemplates-test-app1",
             "cache_to": "type=gha,mode=max,scope=pipelinetemplates-test-app1",
             "secrets": "",
             "outputs": "",
             "annotations": "",
-            "publish": ${{ inputs.push }}
+            "publish": ${{ toJSON(inputs.push) }}
           },
           {
             "name": "app2",
@@ -77,13 +80,13 @@ jobs:
             "labels": "org.opencontainers.image.source=https://github.com/${{ github.repository }}\norg.opencontainers.image.revision=${{ github.sha }}",
             "target": "${{ inputs.target }}",
             "pull": true,
-            "no_cache": ${{ inputs.no_cache }},
+            "no_cache": ${{ toJSON(inputs.no_cache) }},
             "cache_from": "type=gha,scope=pipelinetemplates-test-app2",
             "cache_to": "type=gha,mode=max,scope=pipelinetemplates-test-app2",
             "secrets": "",
             "outputs": "",
             "annotations": "",
-            "publish": ${{ inputs.push }}
+            "publish": ${{ toJSON(inputs.push) }}
           }
         ]
     secrets:
