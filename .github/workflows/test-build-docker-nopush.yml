@@ -22,7 +22,7 @@ jobs:
       contents: read
       packages: write
 
-    uses: redjax/PipelineTemplates/.github/workflows/docker-build-publish.yml@feat/docker-gh-publish
+    uses: redjax/PipelineTemplates/.github/workflows/docker-build-publish.yml@main
     with:
       context: containers/app1
       dockerfile: containers/app1/Dockerfile

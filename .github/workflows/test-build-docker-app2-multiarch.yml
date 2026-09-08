@@ -79,7 +79,7 @@ jobs:
       contents: read
       packages: write
 
-    uses: redjax/PipelineTemplates/.github/workflows/docker-build-publish.yml@feat/docker-gh-publish
+    uses: redjax/PipelineTemplates/.github/workflows/docker-build-publish.yml@main
     with:
       context: ${{ inputs.context }}
       dockerfile: ${{ inputs.dockerfile }}
